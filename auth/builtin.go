@@ -31,6 +31,10 @@ type BuiltinStrategy struct {
     Config *Config
 }
 
+func NewBuiltinStrategyFunc(config *Config) Strategy {
+    return NewBuiltinStrategy(config)
+}
+
 func NewBuiltinStrategy(config *Config) BuiltinStrategy {
     return BuiltinStrategy{
         Config: config,

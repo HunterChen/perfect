@@ -15,3 +15,5 @@ type Strategy interface {
     Register(w http.ResponseWriter, r *perfect.Request)
     Logout(w http.ResponseWriter, r *perfect.Request)
 }
+
+type NewStrategyFunc func(config *Config) Strategy

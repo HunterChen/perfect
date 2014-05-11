@@ -10,9 +10,9 @@ import (
         "github.com/vpetrov/perfect"
        )
 
+//authentication strategy keys
 const (
         BUILTIN = "built-in"
-        SUBJECT_ID = "subject_id"
         OAUTH2  = "oauth2"
         LDAP    = "ldap"
         NIS     = "nis"
@@ -22,15 +22,31 @@ const (
         LOGIN_PATH = "/login"
       )
 
+var (
+        auth_strategies map[string]NewStrategyFunc = map[string]NewStrategyFunc{
+                                                         BUILTIN: NewBuiltinStrategyFunc,
+                                                     }
+    )
+
 func New(config *Config) Strategy {
 
-    switch config.Type {
-        case BUILTIN: return NewBuiltinStrategy(config)
-        case SUBJECT_ID: return NewSubjectIdStrategy(config)
-        default: log.Printf("WARNING: Authentication type '%v' is not yet supported.", config.Type)
+    newfunc, ok := auth_strategies[config.Type]
+    if !ok {
+        log.Fatalf("ERROR: Authentication type '%v' is not yet supported.", config.Type)
+        return nil
     }
 
-    return nil
+    if newfunc == nil {
+        log.Fatalf("ERROR: No such authentication handler for '%v' authentication.", config.Type)
+        return nil
+    }
+
+    return newfunc(config)
+}
+
+//TODO: use RWMutex in case this is called from different goroutines
+func AddStrategy(name string, newfunc NewStrategyFunc) {
+    auth_strategies[name] = newfunc
 }
 
 func Login(w http.ResponseWriter, r *perfect.Request) {
