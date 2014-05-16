@@ -50,6 +50,7 @@ type Database interface {
 	Save(o DBI) error
 	List(collection string, result interface{}) error
 	FilteredList(collection string, props []string, result interface{}) error
+    SearchByField(collection string, field string, value interface{}, props[]string, result interface{}) error
 
 	UniqueId() string
 	IsValidId(id string) bool

@@ -119,6 +119,27 @@ func (db *MongoDB) FilteredList(collection string, props []string, result interf
 	return
 }
 
+func (db *MongoDB) SearchByField(collection string, field string, value interface{}, props[]string, result interface{}) (err error) {
+    if len(collection) == 0 {
+        return ErrInvalidCollection
+    }
+
+    query := bson.M{}
+    query[field] = value
+
+    filter := bson.M{}
+    for p := range props {
+        filter[props[p]] = 1
+    }
+
+    err = db.Database.C(collection).Find(query).Select(filter).All(result)
+    if err == mgo.ErrNotFound {
+        err = ErrNotFound
+    }
+
+    return
+}
+
 func (db *MongoDB) FindId(id string, result DBI) (err error) {
 	collection := result.DbCollection()
 	if len(collection) == 0 {
