@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+    "reflect"
 	"runtime"
     "runtime/debug"
 )
@@ -103,4 +104,16 @@ func BadRequest(w http.ResponseWriter) {
 //returns 401 Unauthorized
 func Unauthorized(w http.ResponseWriter, err error) {
 	http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+}
+
+//For debugging purposes only
+func HandlerInfo(h RequestHandler) (name string, file string, line int) {
+    value := reflect.ValueOf(h)
+    ptr := value.Pointer()
+    f := runtime.FuncForPC(ptr)
+
+    name = f.Name()
+    file, line = f.FileLine(ptr)
+
+    return
 }
