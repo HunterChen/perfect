@@ -10,6 +10,7 @@ type MockDatabase struct {
 	Calls          map[string]int
 	OnList         func(string, interface{})
 	OnFilteredList func(string, []string, interface{})
+    OnSearchByField func(string, string, interface{}, []string, interface{})
 	OnHasId        func(string) (bool, error)
 	OnFindId       func(string, DBI)
 	OnDelete       func(DBI)
@@ -72,6 +73,15 @@ func (db *MockDatabase) FindId(id string, presult DBI) error {
 		db.OnFindId(id, presult)
 	}
 	return nil
+}
+
+func (db *MockDatabase) SearchByField(collection string, field string, value interface{}, props[]string, result interface{}) error {
+    db.Calls["SearchByField"]++
+    if db.OnSearchByField != nil {
+        db.OnSearchByField(collection, field, value, props, result)
+    }
+
+    return nil
 }
 
 func (db *MockDatabase) Delete(o DBI) error {

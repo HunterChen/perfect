@@ -72,6 +72,10 @@ func (r *Request) Session() (*Session, error) {
 	return r.session, err
 }
 
+func (r *Request) SetSession(s *Session) {
+    r.session = s
+}
+
 //returns nil, nil if the user was not found
 func (r *Request) User() (*User, error) {
 	var err error
