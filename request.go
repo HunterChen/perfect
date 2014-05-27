@@ -73,7 +73,7 @@ func (r *Request) Session() (*Session, error) {
 }
 
 func (r *Request) SetSession(s *Session) {
-    r.session = s
+	r.session = s
 }
 
 //returns nil, nil if the user was not found
@@ -121,10 +121,9 @@ func (r *Request) ParseJSON(v interface{}) (err error) {
 	return r.JSONBody(r.Request.Body, v)
 }
 
-
 func (r *Request) StringBody(body io.ReadCloser) (result string, err error) {
-    bytes, err := r.BodyBytes(body)
-    return string(bytes), err
+	bytes, err := r.BodyBytes(body)
+	return string(bytes), err
 }
 
 func (r *Request) BodyBytes(body io.ReadCloser) (result []byte, err error) {

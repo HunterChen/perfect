@@ -14,17 +14,17 @@ type RouteHandlers map[string]RequestHandler
 // Even if modules are re-mounted, they should be first instantiated,
 // then enabled. Should this change, an RWMutex will be necessary.
 type RESTMux struct {
-	handlers        map[string]RouteHandlers
-	staticPrefix    string
-    HasStaticFiles  bool
+	handlers       map[string]RouteHandlers
+	staticPrefix   string
+	HasStaticFiles bool
 }
 
 //returns a new RESTMux
 func NewRESTMux() *RESTMux {
 	return &RESTMux{
 		handlers:       make(map[string]RouteHandlers, 0),
-        staticPrefix:   "",
-        HasStaticFiles: false,
+		staticPrefix:   "",
+		HasStaticFiles: false,
 	}
 }
 
@@ -37,9 +37,9 @@ func (h *RESTMux) Route(w http.ResponseWriter, r *Request) {
 		return
 	}
 
-    //TODO: remove these 2 lines when optimizing performance
-    name, file, line := HandlerInfo(handler)
-    log.Printf("%s %s%s -> %s at %s:%d\n", r.Method, r.Module.MountPoint, r.URL, name, file, line)
+	//TODO: remove these 2 lines when optimizing performance
+	name, file, line := HandlerInfo(handler)
+	log.Printf("%s %s%s -> %s at %s:%d\n", r.Method, r.Module.MountPoint, r.URL, name, file, line)
 
 	//invoke the handler
 	handler(w, r)
@@ -62,7 +62,7 @@ func (h *RESTMux) Handle(method string, path string, handler RequestHandler) {
 
 	handlers[path] = handler
 
-    log.Println("[mux]", method, path, handler)
+	log.Println("[mux]", method, path, handler)
 }
 
 //sets the static path
@@ -72,7 +72,7 @@ func (h *RESTMux) Static(path string) {
 	}
 
 	h.staticPrefix = path
-    h.HasStaticFiles = true
+	h.HasStaticFiles = true
 }
 
 //a request handler for static resources

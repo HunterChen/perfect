@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-    "reflect"
+	"reflect"
 	"runtime"
-    "runtime/debug"
+	"runtime/debug"
 )
 
 type JSONResponse struct {
@@ -31,7 +31,7 @@ func NotLoggedIn(handler RequestHandler) RequestHandler {
 
 		//must not be authenticated at this point
 		handler(w, r)
-    }
+	}
 }
 
 func NotFound(w http.ResponseWriter) {
@@ -45,7 +45,7 @@ func NoContent(w http.ResponseWriter) {
 
 //returns 500 Internal Server Error, and prints the error to the server log
 func Error(w http.ResponseWriter, err error) {
-    debug.PrintStack()
+	debug.PrintStack()
 	_, file, line, _ := runtime.Caller(1)
 	log.Printf("ERROR:%s:%d: %s\n", file, line, err)
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -74,7 +74,7 @@ func XHRRedirect(w http.ResponseWriter, r *Request, url string) {
 		Redirect: url,
 	}
 
-    w.Header().Set("X-Survana-Redirect", url)
+	w.Header().Set("X-Survana-Redirect", url)
 
 	JSONResult(w, false, data)
 }
@@ -108,12 +108,12 @@ func Unauthorized(w http.ResponseWriter, err error) {
 
 //For debugging purposes only
 func HandlerInfo(h RequestHandler) (name string, file string, line int) {
-    value := reflect.ValueOf(h)
-    ptr := value.Pointer()
-    f := runtime.FuncForPC(ptr)
+	value := reflect.ValueOf(h)
+	ptr := value.Pointer()
+	f := runtime.FuncForPC(ptr)
 
-    name = f.Name()
-    file, line = f.FileLine(ptr)
+	name = f.Name()
+	file, line = f.FileLine(ptr)
 
-    return
+	return
 }

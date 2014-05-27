@@ -10,7 +10,7 @@ import (
 type MongoDB struct {
 	Url      *url.URL
 	Database *mgo.Database
-	name	 string
+	name     string
 }
 
 var (
@@ -24,7 +24,7 @@ func NewMongoDB(u *url.URL, name string) *MongoDB {
 	}
 
 	return &MongoDB{
-		Url: u,
+		Url:  u,
 		name: name,
 	}
 }
@@ -119,25 +119,25 @@ func (db *MongoDB) FilteredList(collection string, props []string, result interf
 	return
 }
 
-func (db *MongoDB) SearchByField(collection string, field string, value interface{}, props[]string, result interface{}) (err error) {
-    if len(collection) == 0 {
-        return ErrInvalidCollection
-    }
+func (db *MongoDB) SearchByField(collection string, field string, value interface{}, props []string, result interface{}) (err error) {
+	if len(collection) == 0 {
+		return ErrInvalidCollection
+	}
 
-    query := bson.M{}
-    query[field] = value
+	query := bson.M{}
+	query[field] = value
 
-    filter := bson.M{}
-    for p := range props {
-        filter[props[p]] = 1
-    }
+	filter := bson.M{}
+	for p := range props {
+		filter[props[p]] = 1
+	}
 
-    err = db.Database.C(collection).Find(query).Select(filter).All(result)
-    if err == mgo.ErrNotFound {
-        err = ErrNotFound
-    }
+	err = db.Database.C(collection).Find(query).Select(filter).All(result)
+	if err == mgo.ErrNotFound {
+		err = ErrNotFound
+	}
 
-    return
+	return
 }
 
 func (db *MongoDB) FindId(id string, result DBI) (err error) {
@@ -148,8 +148,8 @@ func (db *MongoDB) FindId(id string, result DBI) (err error) {
 
 	err = db.Database.C(collection).Find(bson.M{"id": id}).One(result)
 
-    //restore the collection name, since bson erases it during unmarshalling
-    result.SetDbCollection(collection)
+	//restore the collection name, since bson erases it during unmarshalling
+	result.SetDbCollection(collection)
 
 	if err == mgo.ErrNotFound {
 		err = ErrNotFound

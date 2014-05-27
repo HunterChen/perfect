@@ -7,31 +7,31 @@ import (
 
 //An object that can be stored in a database.
 type DBO struct {
-	DBID interface{}    `bson:"_id,omitempty" json:"-"`
-	Collection string   `bson:"-" json:"-"`
+	DBID       interface{} `bson:"_id,omitempty" json:"-"`
+	Collection string      `bson:"-" json:"-"`
 }
 
 type DBI interface {
 	DbId() interface{}
 	SetDbId(id interface{})
 	DbCollection() string
-    SetDbCollection(c string)
+	SetDbCollection(c string)
 }
 
 func (dbo *DBO) DbId() interface{} {
-    return dbo.DBID
+	return dbo.DBID
 }
 
 func (dbo *DBO) SetDbId(id interface{}) {
-    dbo.DBID = id
+	dbo.DBID = id
 }
 
 func (dbo *DBO) DbCollection() string {
-    return dbo.Collection
+	return dbo.Collection
 }
 
 func (dbo *DBO) SetDbCollection(c string) {
-    dbo.Collection = c
+	dbo.Collection = c
 }
 
 //A database connection
@@ -50,7 +50,7 @@ type Database interface {
 	Save(o DBI) error
 	List(collection string, result interface{}) error
 	FilteredList(collection string, props []string, result interface{}) error
-    SearchByField(collection string, field string, value interface{}, props[]string, result interface{}) error
+	SearchByField(collection string, field string, value interface{}, props []string, result interface{}) error
 
 	UniqueId() string
 	IsValidId(id string) bool
@@ -66,8 +66,8 @@ const (
 //factory method to instantiate database drivers based on the ID
 func NewDatabase(u *url.URL, name string) Database {
 	switch u.Scheme {
-        case MONGODB:
-            return NewMongoDB(u, name)
+	case MONGODB:
+		return NewMongoDB(u, name)
 	}
 
 	return nil

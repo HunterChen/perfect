@@ -5,7 +5,7 @@ import (
 )
 
 var mock_session *Session = &Session{
-    DBO: DBO { DBID: 1, Collection: SESSION_COLLECTION },
+	DBO:           DBO{DBID: 1, Collection: SESSION_COLLECTION},
 	Id:            "ABCD",
 	Authenticated: true,
 	Values:        map[string]string{"id": "ABCD", "authenticated": "1"},
