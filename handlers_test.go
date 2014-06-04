@@ -75,7 +75,7 @@ func TestNotLoggedIn(t *testing.T) {
 	}
 
 	if response.Status != http.StatusSeeOther {
-		t.Errorf("response.Status is %v, expected $v (http.StatusSeeOther)", response.Status, http.StatusSeeOther)
+		t.Errorf("response.Status is %v, expected %v (http.StatusSeeOther)", response.Status, http.StatusSeeOther)
 	}
 }
 
@@ -172,7 +172,7 @@ func TestRedirectSimple(t *testing.T) {
 	_, ok := response.Headers["X-Survana-Redirect"]
 
 	if ok {
-		t.Errorf("X-Survana-Redirect header is '%v', expected this header value to not be set.")
+		t.Errorf("X-Survana-Redirect header is '%v', expected this header value to not be set.", location)
 	}
 }
 
@@ -302,11 +302,11 @@ func TestJSONResult(t *testing.T) {
 	}
 
 	if actual_response.Success != expected_response.Success {
-		t.Errorf("response success value is %v, expected %v")
+		t.Errorf("response success value is %v, expected %v", actual_response.Success, expected_response.Success)
 	}
 
 	if actual_response.Message != expected_response.Message {
-		t.Errorf("response message is %v, expected %v")
+		t.Errorf("response message is %v, expected %v", actual_response.Message, expected_response.Message)
 	}
 }
 
