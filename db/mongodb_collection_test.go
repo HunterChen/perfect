@@ -2,7 +2,6 @@ package db
 
 import (
 	"encoding/json"
-	"github.com/vpetrov/perfect/pointer"
 	"labix.org/v2/mgo/bson"
 	"log"
 	"math"
@@ -368,21 +367,21 @@ func TestMongoDBCollection_Save(t *testing.T) {
 		A: []string{
 			"value 1", "value 2", "value 3",
 		},
-		PS:    pointer.String("test"),
-		PI:    pointer.Int(math.MaxInt32),
-		PI8:   pointer.Int8(math.MaxInt8),
-		PI16:  pointer.Int16(math.MaxInt16),
-		PI32:  pointer.Int32(math.MaxInt32),
-		PI64:  pointer.Int64(math.MaxInt64),
-		PBOOL: pointer.Bool(true),
-		PB:    pointer.Byte(255),
-		PF32:  pointer.Float32(math.MaxFloat32),
-		PF64:  pointer.Float64(math.MaxFloat64),
-		PR:    pointer.Rune(math.MaxInt32),
-		PUI:   pointer.Uint(math.MaxUint32),
-		PUI8:  pointer.Uint8(math.MaxUint8),
-		PUI16: pointer.Uint16(math.MaxUint16),
-		PUI32: pointer.Uint32(math.MaxUint32),
+		PS:    String("test"),
+		PI:    Int(math.MaxInt32),
+		PI8:   Int8(math.MaxInt8),
+		PI16:  Int16(math.MaxInt16),
+		PI32:  Int32(math.MaxInt32),
+		PI64:  Int64(math.MaxInt64),
+		PBOOL: Bool(true),
+		PB:    Byte(255),
+		PF32:  Float32(math.MaxFloat32),
+		PF64:  Float64(math.MaxFloat64),
+		PR:    Rune(math.MaxInt32),
+		PUI:   Uint(math.MaxUint32),
+		PUI8:  Uint8(math.MaxUint8),
+		PUI16: Uint16(math.MaxUint16),
+		PUI32: Uint32(math.MaxUint32),
 		//UI64: math.MaxUint64, //there is no UINT64 in BSON
 		PM: &map[string]string{
 			"key 1": "value 1",
