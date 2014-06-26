@@ -1,4 +1,4 @@
-package pointer
+package db
 
 import (
 	"testing"
