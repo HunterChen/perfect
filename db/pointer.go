@@ -1,4 +1,4 @@
-package pointer
+package db
 
 func String(s string) *string {
 	return &s
