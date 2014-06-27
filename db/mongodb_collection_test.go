@@ -49,6 +49,10 @@ type mockRecord struct {
 	PA *[]string          `PA`
 }
 
+func (m mockRecord) Copy() *mockRecord {
+	return &m
+}
+
 func printJSON(o interface{}) {
 	data, err := json.Marshal(o)
 
@@ -306,6 +310,20 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 	}
 }
 
+func getMockRecord(col Collection, id interface{}, t *testing.T) *mockRecord {
+	var err error
+	//read the entry back into a map by using mgo directly
+	mc := col.(*MongoDBCollection)
+	result := &mockRecord{}
+
+	err = mc.FindId(id).One(&result)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
+
+	return result
+}
+
 func TestMongoDBCollection_Name(t *testing.T) {
 	db, clean := newRealMongoDB(t)
 	defer clean()
@@ -332,6 +350,35 @@ func TestMongoDBCollection_Drop(t *testing.T) {
 	if err != nil {
 		t.Errorf("Drop returned '%v', expected nil", err)
 	}
+}
+
+func TestMongoDBCollection_SaveFindId(t *testing.T) {
+	var err error
+	db, clean := newRealMongoDB(t)
+	defer clean()
+
+	col := db.C("test2")
+
+	expected := &mockRecord{}
+	err = col.Save(expected)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
+
+	expected_id := expected.GetDbId()
+
+	actual := getMockRecord(col, expected_id, t)
+
+	if actual == nil {
+		t.Errorf("record is nil, expected non-nil")
+	}
+
+	actual_id := actual.GetDbId()
+	if actual_id != expected_id {
+		t.Errorf("record id is %v, expected %v", actual_id, expected_id)
+	}
+
+	compareRecords(actual, expected, t)
 }
 
 func TestMongoDBCollection_Save(t *testing.T) {
@@ -427,8 +474,56 @@ func TestMongoDBCollection_Save(t *testing.T) {
 	compareRecords(actual, expected, t)
 }
 
-func TestA1(t *testing.T) {
+//a test for the test helper
+func TestCompareEmptyRecords(t *testing.T) {
 	a := &mockRecord{}
 	b := &mockRecord{}
 	compareRecords(a, b, t)
 }
+
+func TestMongoDBCollection_SavePartial(t *testing.T) {
+	var err error
+
+	full_record := &mockRecord{
+		PS:    String("abcd"),
+		PI:    Int(12),
+		PBOOL: Bool(true),
+	}
+
+	db, clean := newRealMongoDB(t)
+	defer clean()
+
+	col := db.C("test2")
+
+	err = col.Save(full_record)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
+
+	id := full_record.GetDbId()
+	if id == nil {
+		t.Errorf("record id is nil, expected non-nil")
+	}
+
+	//Simulate an update
+	updated_record := full_record.Copy()
+	updated_record.PS = String("dcba")
+	updated_record.PBOOL = Bool(false)
+
+	//save the updated record
+	err = col.Save(updated_record)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
+
+	//fetch the updated record from MongoDB
+	mc := col.(*MongoDBCollection)
+	actual := &mockRecord{}
+
+	err = mc.FindId(id).One(&actual)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
+
+	compareRecords(actual, updated_record, t)
+
