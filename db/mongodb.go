@@ -10,12 +10,9 @@ type MongoDB struct {
 	Url      *url.URL
 	Database *mgo.Database
 	name     string
+	Session     *mgo.Session
+	SessionInfo *mgo.BuildInfo
 }
-
-var (
-	session     *mgo.Session
-	sessionInfo *mgo.BuildInfo
-)
 
 //NewDatabaseDriver
 func NewMongoDBDriver(u *url.URL, name string) (Database, error) {
@@ -37,9 +34,7 @@ func NewMongoDB(u *url.URL, name string) *MongoDB {
 
 func (db *MongoDB) Connect() (err error) {
 
-	//create a single instance of the session object
-	//which will get reused by subsequent calls to Connect()
-	if session == nil {
+	if db.Session == nil {
 		//set connection properties
 		dialinfo := &mgo.DialInfo{
 			Addrs:    []string{db.Url.Host},
@@ -58,34 +53,32 @@ func (db *MongoDB) Connect() (err error) {
 		}
 
 		//connect to MongoDB
-		session, err = mgo.DialWithInfo(dialinfo)
+		db.Session, err = mgo.DialWithInfo(dialinfo)
 		if err != nil {
 			return
 		}
 	}
 
 	//create an mgo.Database object
-	db.Database = session.DB(db.Url.Path[1:])
+	db.Database = db.Session.DB(db.Url.Path[1:])
 
 	//fetch the session information
-	info, err := session.BuildInfo()
+	info, err := db.Session.BuildInfo()
 	if err != nil {
 		return
 	}
 
-	sessionInfo = &info
+	db.SessionInfo = &info
 
 	//set the session in safe mode
-	session.SetSafe(&mgo.Safe{})
+	db.Session.SetSafe(&mgo.Safe{})
 
 	return
 }
 
 func (db *MongoDB) Disconnect() error {
-	if session != nil {
-		session.Close()
-		session = nil
-		sessionInfo = nil
+	if db.Session != nil {
+		db.Session.Close()
 	}
 
 	return nil
@@ -100,16 +93,16 @@ func (db *MongoDB) URL() *url.URL {
 }
 
 func (db *MongoDB) SystemInformation() string {
-	if sessionInfo != nil {
-		return sessionInfo.SysInfo
+	if db.SessionInfo != nil {
+		return db.SessionInfo.SysInfo
 	}
 
 	return ""
 }
 
 func (db *MongoDB) Version() string {
-	if sessionInfo != nil {
-		return "MongoDB " + sessionInfo.Version
+	if db.SessionInfo != nil {
+		return "MongoDB " + db.SessionInfo.Version
 	}
 
 	return ""

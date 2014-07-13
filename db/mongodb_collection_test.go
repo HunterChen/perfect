@@ -149,18 +149,9 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	/* Verify pointer types */
 
-	//returns "nil" or "non-nil" depending on whether 'a' is nil
-	nilOrNot := func(a interface{}) string {
-		if a == nil {
-			return "nil"
-		}
-
-		return "non-nil"
-	}
-
 	if actual.PS != expected.PS {
 		if actual.PS == nil || expected.PS == nil {
-			t.Errorf("record.PS is %v, expected %v", nilOrNot(actual.PS), nilOrNot(expected.PS))
+			t.Errorf("record.PS is %v, expected %v", actual.PS, expected.PS)
 		} else if *actual.PS != *expected.PS {
 			t.Errorf("*record.S is '%v', expected '%v'", *actual.PS, *expected.PS)
 		}
@@ -168,7 +159,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PI != expected.PI {
 		if actual.PI == nil || expected.PI == nil {
-			t.Errorf("record.PI is %v, expected %v", nilOrNot(actual.PI), nilOrNot(expected.PI))
+			t.Errorf("record.PI is %v, expected %v", actual.PI, expected.PI)
 		} else if *actual.PI != *expected.PI {
 			t.Errorf("*record.PI is %v, expected %v", *actual.PI, *expected.PI)
 		}
@@ -176,7 +167,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PI8 != expected.PI8 {
 		if actual.PI8 == nil || expected.PI8 == nil {
-			t.Errorf("record.PI8 is %v, expected %v", nilOrNot(actual.PI8), nilOrNot(expected.PI8))
+			t.Errorf("record.PI8 is %v, expected %v", actual.PI8, expected.PI8)
 		} else if *actual.PI8 != *expected.PI8 {
 			t.Errorf("*record.PI8 is %v, expected %v", *actual.PI8, *expected.PI8)
 		}
@@ -184,7 +175,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PI16 != expected.PI16 {
 		if actual.PI16 == nil || expected.PI16 == nil {
-			t.Errorf("record.PI16 is %v, expected %v", nilOrNot(actual.PI16), nilOrNot(expected.PI16))
+			t.Errorf("record.PI16 is %v, expected %v", actual.PI16, expected.PI16)
 		} else if *actual.PI16 != *expected.PI16 {
 			t.Errorf("record.PI16 is %v, expected %v", *actual.PI16, *expected.PI16)
 		}
@@ -192,7 +183,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PI32 != expected.PI32 {
 		if actual.PI32 == nil || expected.PI32 == nil {
-			t.Errorf("record.PI32 is %v, expected %v", nilOrNot(actual.PI32), nilOrNot(actual.PI32))
+			t.Errorf("record.PI32 is %v, expected %v", actual.PI32, actual.PI32)
 		} else if *actual.PI32 != *expected.PI32 {
 			t.Errorf("record.PI32 is %v, expected %v", *actual.PI32, *expected.PI32)
 		}
@@ -200,7 +191,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PI64 != expected.PI64 {
 		if actual.PI64 == nil || expected.PI64 == nil {
-			t.Errorf("record.PI64 is %v, expected %v", nilOrNot(actual.PI64), nilOrNot(actual.PI64))
+			t.Errorf("record.PI64 is %v, expected %v", actual.PI64, actual.PI64)
 		} else if *actual.PI64 != *expected.PI64 {
 			t.Errorf("record.PI64 is %v, expected %v", *actual.PI64, *expected.PI64)
 		}
@@ -208,7 +199,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PBOOL != expected.PBOOL {
 		if actual.PBOOL == nil || expected.PBOOL == nil {
-			t.Errorf("record.PBOOL is %v, expected %v", nilOrNot(actual.PBOOL), nilOrNot(actual.PBOOL))
+			t.Errorf("record.PBOOL is %v, expected %v", actual.PBOOL, actual.PBOOL)
 		} else if *actual.PBOOL != *expected.PBOOL {
 			t.Errorf("record.PBOOL is %v, expected %v", *actual.PBOOL, *expected.PBOOL)
 		}
@@ -216,7 +207,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PF32 != expected.PF32 {
 		if actual.PF32 == nil || expected.PF32 == nil {
-			t.Errorf("record.PF32 is %v, expected %v", nilOrNot(actual.PF32), nilOrNot(actual.PF32))
+			t.Errorf("record.PF32 is %v, expected %v", actual.PF32, actual.PF32)
 		} else if *actual.PF32 != *expected.PF32 {
 			t.Errorf("record.PF32 is %v, expected %v", *actual.PF32, *expected.PF32)
 		}
@@ -224,7 +215,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PF64 != expected.PF64 {
 		if actual.PF64 == nil || expected.PF64 == nil {
-			t.Errorf("record.PF64 is %v, expected %v", nilOrNot(actual.PF64), nilOrNot(actual.PF64))
+			t.Errorf("record.PF64 is %v, expected %v", actual.PF64, actual.PF64)
 		} else if *actual.PF64 != *expected.PF64 {
 			t.Errorf("record.PF64 is %v, expected %v", *actual.PF64, *expected.PF64)
 		}
@@ -232,7 +223,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PR != expected.PR {
 		if actual.PR == nil || expected.PR == nil {
-			t.Errorf("record.PR is %v, expected %v", nilOrNot(actual.PR), nilOrNot(actual.PR))
+			t.Errorf("record.PR is %v, expected %v", actual.PR, actual.PR)
 		} else if *actual.PR != *expected.PR {
 			t.Errorf("record.PR is '%v', expected '%v'", *actual.PR, *expected.PR)
 		}
@@ -240,7 +231,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PUI != expected.PUI {
 		if actual.PUI == nil || expected.PUI == nil {
-			t.Errorf("record.PUI is %v, expected %v", nilOrNot(actual.PUI), nilOrNot(actual.PUI))
+			t.Errorf("record.PUI is %v, expected %v", actual.PUI, actual.PUI)
 		} else if *actual.PUI != *expected.PUI {
 			t.Errorf("record.PUI is %v, expected %v", *actual.PUI, *expected.PUI)
 		}
@@ -248,7 +239,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PUI8 != expected.PUI8 {
 		if actual.PUI8 == nil || expected.PUI8 == nil {
-			t.Errorf("record.PUI8 is %v, expected %v", nilOrNot(actual.PUI8), nilOrNot(actual.PUI8))
+			t.Errorf("record.PUI8 is %v, expected %v", actual.PUI8, actual.PUI8)
 		} else if *actual.PUI8 != *expected.PUI8 {
 			t.Errorf("record.PUI8 is %v, expected %v", *actual.PUI8, *expected.PUI8)
 		}
@@ -256,7 +247,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PUI16 != expected.PUI16 {
 		if actual.PUI16 == nil || expected.PUI16 == nil {
-			t.Errorf("record.PUI16 is %v, expected %v", nilOrNot(actual.PUI16), nilOrNot(actual.PUI16))
+			t.Errorf("record.PUI16 is %v, expected %v", actual.PUI16, actual.PUI16)
 		} else if *actual.PUI16 != *expected.PUI16 {
 			t.Errorf("record.PUI16 is %v, expected %v", *actual.PUI16, *expected.PUI16)
 		}
@@ -264,7 +255,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PUI32 != expected.PUI32 {
 		if actual.PUI32 == nil || expected.PUI32 == nil {
-			t.Errorf("record.PUI32 is %v, expected %v", nilOrNot(actual.PUI32), nilOrNot(actual.PUI32))
+			t.Errorf("record.PUI32 is %v, expected %v", actual.PUI32, actual.PUI32)
 		} else if *actual.PUI32 != *expected.PUI32 {
 			t.Errorf("record.PUI32 is %v, expected %v", *actual.PUI32, *expected.PUI32)
 		}
@@ -272,7 +263,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PM != expected.PM {
 		if actual.PM == nil || expected.PM == nil {
-			t.Errorf("record.PM is %v, expected %v", nilOrNot(actual.PM), nilOrNot(actual.PM))
+			t.Errorf("record.PM is %v, expected %v", actual.PM, actual.PM)
 		} else {
 			//iterate over the map
 			for k, expected_v := range *expected.PM {
@@ -290,7 +281,7 @@ func compareRecords(actual, expected *mockRecord, t *testing.T) {
 
 	if actual.PM != expected.PM {
 		if actual.PM == nil || expected.PM == nil {
-			t.Errorf("record.PM is %v, expected %v", nilOrNot(actual.PM), nilOrNot(actual.PM))
+			t.Errorf("record.PM is %v, expected %v", actual.PM, actual.PM)
 		} else {
 			//verify number of elements
 			nexpectedA := len(*expected.PA)
@@ -341,6 +332,16 @@ func TestMongoDBCollection_Name(t *testing.T) {
 	}
 }
 
+func TestMongoDBCollection_NameOffline(t *testing.T) {
+    col := &MongoDBCollection{}
+
+    actual_name := col.Name()
+
+    if len(actual_name) != 0 {
+        t.Errorf("Collection name is '$v', expected empty string", actual_name)
+    }
+}
+
 func TestMongoDBCollection_Drop(t *testing.T) {
 	db, clean := newRealMongoDB(t)
 	defer clean()
@@ -350,6 +351,15 @@ func TestMongoDBCollection_Drop(t *testing.T) {
 	if err != nil {
 		t.Errorf("Drop returned '%v', expected nil", err)
 	}
+}
+
+func TestMongoDBCollection_DropOffline(t *testing.T) {
+    col := &MongoDBCollection{}
+
+    err := col.Drop()
+    if err != nil {
+        t.Errorf("Drop returned '%v', expected nil", err)
+    }
 }
 
 func TestMongoDBCollection_SaveFindId(t *testing.T) {
@@ -439,8 +449,6 @@ func TestMongoDBCollection_Save(t *testing.T) {
 		},
 	}
 
-	printJSON(expected)
-
 	err = col.Save(expected)
 	if err != nil {
 		t.Errorf("err = %v", err)
@@ -468,8 +476,6 @@ func TestMongoDBCollection_Save(t *testing.T) {
 	if err != nil {
 		t.Errorf("err = %v", err)
 	}
-
-	log.Println("%#v", actual)
 
 	compareRecords(actual, expected, t)
 }
@@ -517,13 +523,81 @@ func TestMongoDBCollection_SavePartial(t *testing.T) {
 	}
 
 	//fetch the updated record from MongoDB
-	mc := col.(*MongoDBCollection)
-	actual := &mockRecord{}
-
-	err = mc.FindId(id).One(&actual)
-	if err != nil {
-		t.Errorf("err = %v", err)
-	}
+	actual := getMockRecord(col, id, t)
 
 	compareRecords(actual, updated_record, t)
+}
 
+func TestMongoDBCollection_SaveOffline(t *testing.T) {
+    col := &MongoDBCollection{}
+    r := &mockRecord{}
+
+    err := col.Save(r)
+    if err == nil {
+        t.Errorf("Save() returned nil, expected error")
+    }
+}
+
+func TestMongoDBCollection_Find(t *testing.T) {
+    str := String("this is a test")
+    i := Int(42)
+
+    expected := &mockRecord{
+                    PS:str,
+                    PI:i,
+                }
+
+    db, clean := newRealMongoDB(t)
+    defer clean()
+
+    col := db.C("test")
+
+    err := col.Save(expected)
+    if err != nil {
+        t.Errorf("err = %v", err)
+    }
+
+    actual := &mockRecord{
+        PS:str,
+        PI:i,
+    }
+
+    query := col.Find(actual)
+
+    if query == nil {
+        t.Errorf("query is nil, expected non-nil")
+    }
+
+    nrecords, err := query.Count()
+    if err != nil {
+        t.Errorf("err = %v", err)
+    }
+
+    if nrecords == 0 {
+        t.Errorf("Find(): document not found: %v", expected)
+    }
+
+    err = query.One(actual)
+    if err != nil {
+        t.Errorf("err = %v", err)
+    }
+
+    compareRecords(actual, expected, t)
+
+    actual_id := actual.GetDbId()
+    expected_id := expected.GetDbId()
+
+    if actual_id != expected_id {
+        t.Errorf("record.DBID is %v, expected %v", actual_id, expected_id)
+    }
+}
+
+func TestMongoDBCollection_FindOffline(t *testing.T) {
+    col := &MongoDBCollection{}
+
+    query := col.Find(nil)
+
+    if query != nil {
+        t.Errorf("query is %v, expected nil", query)
+    }
+}

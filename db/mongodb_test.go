@@ -3,6 +3,7 @@ package db
 import (
 	"net/url"
 	"testing"
+	"labix.org/v2/mgo"
 )
 
 /**********
@@ -45,6 +46,10 @@ func newMockMongoDB(t *testing.T) *MongoDB {
 //should use with defer.
 func newRealMongoDB(t *testing.T) (*MongoDB, func()) {
 	u := realMongoDBUrl("test1")
+    return newMongoDBWithURL(u, t)
+}
+
+func newMongoDBWithURL(u *url.URL, t *testing.T) (*MongoDB, func()) {
 	db := NewMongoDB(u, "")
 	err := db.Connect()
 	if err != nil {
@@ -59,6 +64,25 @@ func newRealMongoDB(t *testing.T) (*MongoDB, func()) {
 	}
 
 	return db, cleanup
+}
+
+func setupAuth(db *MongoDB, username, password string, t *testing.T) func() {
+    user := &mgo.User{
+        Username: username,
+        Password: password,
+    }
+
+    err := db.Database.UpsertUser(user)
+    if err != nil {
+        t.Errorf("err = %v", err)
+    }
+
+    return func() {
+        err := db.Database.RemoveUser(username)
+        if err != nil {
+            t.Errorf("err = %v")
+        }
+    }
 }
 
 /********
@@ -159,6 +183,68 @@ func TestMongoDB_ConnectToUnreachableServer(t *testing.T) {
 	if err != nil {
 		t.Errorf("Disconnect(): err = %v", err)
 	}
+}
+
+func TestMongoDB_ConnectWithUser(t *testing.T) {
+    username:="test"
+    password:="test"
+
+    var (
+            err error
+        )
+
+    dbUrl := newMockUrl("mongodb://127.0.0.1:27017/test2")
+
+    db, clean := newMongoDBWithURL(dbUrl, t)
+    defer clean()
+
+    clean = setupAuth(db, username, password, t)
+    defer clean()
+
+    dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "@127.0.0.1:27017/test2")
+
+    //create another connection to MongoDB
+    db = NewMongoDB(dbUrl2, "")
+    err = db.Connect()
+    if err != nil {
+        t.Errorf("Connect(): err is '%v', expected nil", err)
+    }
+
+    err = db.Disconnect()
+    if err != nil {
+        t.Errorf("Disconnect(): err is '%v', expected nil", err)
+    }
+}
+
+func TestMongoDB_ConnectWithInvalidUser(t *testing.T) {
+    username:="test"
+    password:="test"
+
+    var (
+            err error
+        )
+
+    dbUrl := newMockUrl("mongodb://127.0.0.1:27017/test2")
+
+    db, clean := newMongoDBWithURL(dbUrl, t)
+    defer clean()
+
+    clean = setupAuth(db, username, password, t)
+    defer clean()
+
+    dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "invalid" + "@127.0.0.1:27017/test2")
+
+    //create another connection to MongoDB
+    db = NewMongoDB(dbUrl2, "")
+    err = db.Connect()
+    if err == nil {
+        t.Errorf("Connect(): err is nil, expected non-nil")
+    }
+
+    err = db.Disconnect()
+    if err != nil {
+        t.Errorf("Disconnect(): err is '%v', expected nil", err)
+    }
 }
 
 func TestMongoDB_SystemInformationOffline(t *testing.T) {

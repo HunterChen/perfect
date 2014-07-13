@@ -58,3 +58,15 @@ func (col *MongoDBCollection) Save(r Record) error {
 
 	return err
 }
+
+func (col *MongoDBCollection) Find(search Record) Query {
+    if col.Collection == nil {
+        return nil
+    }
+
+    query := col.Collection.Find(search)
+
+    return &MongoDBQuery{
+        query,
+    }
+}
