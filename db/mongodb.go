@@ -7,9 +7,9 @@ import (
 )
 
 type MongoDB struct {
-	Url      *url.URL
-	Database *mgo.Database
-	name     string
+	Url         *url.URL
+	Database    *mgo.Database
+	name        string
 	Session     *mgo.Session
 	SessionInfo *mgo.BuildInfo
 }

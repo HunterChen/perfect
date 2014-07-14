@@ -23,12 +23,12 @@ type Collection interface {
 	Count() (n int, err error)
 	Drop() error
 	Save(Record) error
-    Find(Record) Query
+	Find(Record) Query
 }
 
 type Query interface {
-    Count() (int, error)
-    One(Record) error
+	Count() (int, error)
+	One(Record) error
 }
 
 //All DB drivers must implement a NewDatabaseDriver function

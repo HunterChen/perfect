@@ -60,13 +60,13 @@ func (col *MongoDBCollection) Save(r Record) error {
 }
 
 func (col *MongoDBCollection) Find(search Record) Query {
-    if col.Collection == nil {
-        return nil
-    }
+	if col.Collection == nil {
+		return nil
+	}
 
-    query := col.Collection.Find(search)
+	query := col.Collection.Find(search)
 
-    return &MongoDBQuery{
-        query,
-    }
+	return &MongoDBQuery{
+		query,
+	}
 }
