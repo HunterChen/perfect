@@ -333,13 +333,13 @@ func TestMongoDBCollection_Name(t *testing.T) {
 }
 
 func TestMongoDBCollection_NameOffline(t *testing.T) {
-    col := &MongoDBCollection{}
+	col := &MongoDBCollection{}
 
-    actual_name := col.Name()
+	actual_name := col.Name()
 
-    if len(actual_name) != 0 {
-        t.Errorf("Collection name is '$v', expected empty string", actual_name)
-    }
+	if len(actual_name) != 0 {
+		t.Errorf("Collection name is '$v', expected empty string", actual_name)
+	}
 }
 
 func TestMongoDBCollection_Drop(t *testing.T) {
@@ -354,12 +354,12 @@ func TestMongoDBCollection_Drop(t *testing.T) {
 }
 
 func TestMongoDBCollection_DropOffline(t *testing.T) {
-    col := &MongoDBCollection{}
+	col := &MongoDBCollection{}
 
-    err := col.Drop()
-    if err != nil {
-        t.Errorf("Drop returned '%v', expected nil", err)
-    }
+	err := col.Drop()
+	if err != nil {
+		t.Errorf("Drop returned '%v', expected nil", err)
+	}
 }
 
 func TestMongoDBCollection_SaveFindId(t *testing.T) {
@@ -529,75 +529,75 @@ func TestMongoDBCollection_SavePartial(t *testing.T) {
 }
 
 func TestMongoDBCollection_SaveOffline(t *testing.T) {
-    col := &MongoDBCollection{}
-    r := &mockRecord{}
+	col := &MongoDBCollection{}
+	r := &mockRecord{}
 
-    err := col.Save(r)
-    if err == nil {
-        t.Errorf("Save() returned nil, expected error")
-    }
+	err := col.Save(r)
+	if err == nil {
+		t.Errorf("Save() returned nil, expected error")
+	}
 }
 
 func TestMongoDBCollection_Find(t *testing.T) {
-    str := String("this is a test")
-    i := Int(42)
+	str := String("this is a test")
+	i := Int(42)
 
-    expected := &mockRecord{
-                    PS:str,
-                    PI:i,
-                }
+	expected := &mockRecord{
+		PS: str,
+		PI: i,
+	}
 
-    db, clean := newRealMongoDB(t)
-    defer clean()
+	db, clean := newRealMongoDB(t)
+	defer clean()
 
-    col := db.C("test")
+	col := db.C("test")
 
-    err := col.Save(expected)
-    if err != nil {
-        t.Errorf("err = %v", err)
-    }
+	err := col.Save(expected)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
 
-    actual := &mockRecord{
-        PS:str,
-        PI:i,
-    }
+	actual := &mockRecord{
+		PS: str,
+		PI: i,
+	}
 
-    query := col.Find(actual)
+	query := col.Find(actual)
 
-    if query == nil {
-        t.Errorf("query is nil, expected non-nil")
-    }
+	if query == nil {
+		t.Errorf("query is nil, expected non-nil")
+	}
 
-    nrecords, err := query.Count()
-    if err != nil {
-        t.Errorf("err = %v", err)
-    }
+	nrecords, err := query.Count()
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
 
-    if nrecords == 0 {
-        t.Errorf("Find(): document not found: %v", expected)
-    }
+	if nrecords == 0 {
+		t.Errorf("Find(): document not found: %v", expected)
+	}
 
-    err = query.One(actual)
-    if err != nil {
-        t.Errorf("err = %v", err)
-    }
+	err = query.One(actual)
+	if err != nil {
+		t.Errorf("err = %v", err)
+	}
 
-    compareRecords(actual, expected, t)
+	compareRecords(actual, expected, t)
 
-    actual_id := actual.GetDbId()
-    expected_id := expected.GetDbId()
+	actual_id := actual.GetDbId()
+	expected_id := expected.GetDbId()
 
-    if actual_id != expected_id {
-        t.Errorf("record.DBID is %v, expected %v", actual_id, expected_id)
-    }
+	if actual_id != expected_id {
+		t.Errorf("record.DBID is %v, expected %v", actual_id, expected_id)
+	}
 }
 
 func TestMongoDBCollection_FindOffline(t *testing.T) {
-    col := &MongoDBCollection{}
+	col := &MongoDBCollection{}
 
-    query := col.Find(nil)
+	query := col.Find(nil)
 
-    if query != nil {
-        t.Errorf("query is %v, expected nil", query)
-    }
+	if query != nil {
+		t.Errorf("query is %v, expected nil", query)
+	}
 }
