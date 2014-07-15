@@ -2,8 +2,6 @@ package db
 
 import (
 	"labix.org/v2/mgo"
-	_ "labix.org/v2/mgo/bson"
-	"log"
 	"net/url"
 )
 
@@ -41,6 +39,7 @@ func (db *MongoDB) Connect() (err error) {
 			Addrs:    []string{db.Url.Host},
 			FailFast: true,
 			Database: db.name,
+			Source:   db.name,
 		}
 
 		//set username/password info from the db url
@@ -53,12 +52,10 @@ func (db *MongoDB) Connect() (err error) {
 			}
 		}
 
-		log.Println("dialinfo.Username:", dialinfo.Username, "dialginfo.Password:", dialinfo.Password)
-
 		//connect to MongoDB
+		//db.Session, err = mgo.DialWithInfo(dialinfo)
 		db.Session, err = mgo.DialWithInfo(dialinfo)
 		if err != nil {
-			log.Println("dialWithInfo failed:", err, "dialInfo:", dialinfo)
 			return
 		}
 	}

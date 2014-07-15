@@ -70,6 +70,7 @@ func setupAuth(db *MongoDB, username, password string, t *testing.T) func() {
 	user := &mgo.User{
 		Username: username,
 		Password: password,
+		Roles:    []mgo.Role{mgo.RoleReadWrite},
 	}
 
 	err := db.Database.UpsertUser(user)
@@ -199,6 +200,7 @@ func TestMongoDB_ConnectWithUser(t *testing.T) {
 	defer clean()
 
 	clean = setupAuth(db, username, password, t)
+	defer clean()
 
 	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "@127.0.0.1:27017/test2")
 
@@ -229,8 +231,9 @@ func TestMongoDB_ConnectWithInvalidUser(t *testing.T) {
 	defer clean()
 
 	clean = setupAuth(db, username, password, t)
+	defer clean()
 
-	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "@127.0.0.1:27017/test2")
+	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "invalid" + "@127.0.0.1:27017/test2")
 
 	//create another connection to MongoDB
 	db = NewMongoDB(dbUrl2, "")
