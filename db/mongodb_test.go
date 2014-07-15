@@ -199,7 +199,6 @@ func TestMongoDB_ConnectWithUser(t *testing.T) {
 	defer clean()
 
 	clean = setupAuth(db, username, password, t)
-	defer clean()
 
 	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "@127.0.0.1:27017/test2")
 
@@ -230,9 +229,8 @@ func TestMongoDB_ConnectWithInvalidUser(t *testing.T) {
 	defer clean()
 
 	clean = setupAuth(db, username, password, t)
-	defer clean()
 
-	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "invalid" + "@127.0.0.1:27017/test2")
+	dbUrl2 := newMockUrl("mongodb://" + username + ":" + password + "@127.0.0.1:27017/test2")
 
 	//create another connection to MongoDB
 	db = NewMongoDB(dbUrl2, "")
