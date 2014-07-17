@@ -2,7 +2,9 @@ package db
 
 import (
 	"labix.org/v2/mgo"
+	"log"
 	"net/url"
+	"os"
 )
 
 type MongoDB struct {
@@ -122,5 +124,14 @@ func (db *MongoDB) C(name string) Collection {
 
 	return &MongoDBCollection{
 		col,
+	}
+}
+
+func (db *MongoDB) SetDebug(on bool) {
+	mgo.SetDebug(on)
+	if on {
+		mgo.SetLogger(log.New(os.Stderr, "[db] ", log.LstdFlags))
+	} else {
+		mgo.SetLogger(nil)
 	}
 }

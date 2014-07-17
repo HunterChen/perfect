@@ -59,14 +59,20 @@ func (col *MongoDBCollection) Save(r Record) error {
 	return err
 }
 
-func (col *MongoDBCollection) Find(search Record) Query {
+func (col *MongoDBCollection) Find(r Record) error {
 	if col.Collection == nil {
 		return nil
 	}
 
-	query := col.Collection.Find(search)
+	return col.Collection.Find(r).One(r)
+}
+
+func (col *MongoDBCollection) Query(q interface{}) Query {
+	if col.Collection == nil {
+		return nil
+	}
 
 	return &MongoDBQuery{
-		query,
+		col.Collection.Find(q),
 	}
 }

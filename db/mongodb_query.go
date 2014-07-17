@@ -12,3 +12,7 @@ type MongoDBQuery struct {
 func (q *MongoDBQuery) One(result Record) error {
 	return q.Query.One(result)
 }
+
+func (q *MongoDBQuery) All(result []Record) error {
+	return q.Query.All(result)
+}

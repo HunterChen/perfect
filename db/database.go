@@ -16,6 +16,8 @@ type Database interface {
 	Disconnect() error
 
 	C(string) Collection
+
+	SetDebug(bool)
 }
 
 type Collection interface {
@@ -23,12 +25,14 @@ type Collection interface {
 	Count() (n int, err error)
 	Drop() error
 	Save(Record) error
-	Find(Record) Query
+	Find(Record) error
+	Query(interface{}) Query
 }
 
 type Query interface {
 	Count() (int, error)
 	One(Record) error
+	All([]Record) error
 }
 
 //All DB drivers must implement a NewDatabaseDriver function

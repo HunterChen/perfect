@@ -5,27 +5,27 @@ import (
 )
 
 func TestNewDatabase(t *testing.T) {
-	u := newMockUrl("mongodb://localhost/test")
+	u := newTestUrl(testDatabaseUrl)
 	db, err := NewDatabase(u, "")
 
 	if err != nil {
-		t.Errorf("err = %v", err)
+		t.Fatalf("err = %v", err)
 	}
 
 	if db == nil {
-		t.Errorf("db is nil, expected non-nil value")
+		t.Fatalf("db is nil, expected non-nil value")
 	}
 }
 
 func TestNewDatabase_BadScheme(t *testing.T) {
-	u := newMockUrl("bad_scheme://no_such_host.localdomain/")
+	u := newTestUrl("bad_scheme://" + testHost + "/" + testDatabaseName)
 	db, err := NewDatabase(u, "")
 
 	if err == nil {
-		t.Errorf("err is nil, expected non-nil")
+		t.Fatalf("err is nil, expected non-nil")
 	}
 
 	if db != nil {
-		t.Errorf("db is %v, expected nil", db)
+		t.Fatalf("db is %v, expected nil", db)
 	}
 }
