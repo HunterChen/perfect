@@ -16,8 +16,13 @@ type Database interface {
 	Disconnect() error
 
 	C(string) Collection
+	GetCollectionName(r Record) string
 
 	SetDebug(bool)
+	UniqueId() string
+
+	Save(Record) error
+	Find(Record) error
 }
 
 type Collection interface {

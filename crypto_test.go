@@ -172,3 +172,13 @@ func BenchmarkUnmarshalJSON(b *testing.B) {
 		_ = key2.UnmarshalJSON(keydata)
 	}
 }
+
+func TestMD5Sum(t *testing.T) {
+	s := "The quick brown fox jumped over the lazy dog"
+	expected := "08a008a01d498c404b0c30852b39d3b8"
+	actual := MD5Sum(s)
+	if actual != expected {
+		t.Fatalf("actual md5 is '%v', expected '%v' for string: '%v'", actual, expected, s)
+	}
+
+}

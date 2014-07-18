@@ -24,7 +24,7 @@ func NotLoggedIn(handler RequestHandler) RequestHandler {
 		}
 
 		//if the session has already been authorized, redirect
-		if session.Authenticated {
+		if *session.Authenticated {
 			Redirect(w, r, "/")
 			return
 		}

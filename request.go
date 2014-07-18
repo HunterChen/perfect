@@ -65,8 +65,11 @@ func (r *Request) Session() (*Session, error) {
 
 	//if the session was not found, create a new one
 	if r.session == nil {
-		r.session = NewSession()
-		r.session.Id = r.Module.Db.UniqueId()
+		r.session = NewSession(MD5Sum(r.Module.Db.UniqueId()))
+		err = r.session.Save(r.Module.Db)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return r.session, err

@@ -299,3 +299,88 @@ func TestMongoDB_SetDebug(t *testing.T) {
 	db.SetDebug(true)
 	db.SetDebug(false)
 }
+
+func TestMongoDB_UniqueId(t *testing.T) {
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	ids := []string{}
+
+	//a helper function that checks whether a string already exists in the slice
+	id_exists := func(dest []string, id string) bool {
+		for _, v := range dest {
+			if v == id {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	//generate 100 IDs
+	for i := 0; i < 100; i++ {
+		new_id := db.UniqueId()
+		if id_exists(ids, new_id) {
+			t.Fatalf("duplicate id generated: %v\ncurrent ids: %v", new_id, ids)
+		}
+
+		ids = append(ids, new_id)
+	}
+}
+
+func TestMongoDB_GetCollectionName(t *testing.T) {
+	type testObject struct {
+		Object
+	}
+
+	o := &testObject{}
+	expected_col := "testobjects"
+
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	actual_col := db.GetCollectionName(o)
+
+	if actual_col != expected_col {
+		t.Fatalf("collection name is '%v', expected '%v'", actual_col, expected_col)
+	}
+
+	t.Logf("collection name is '%v'", actual_col)
+}
+
+func BenchmarkMongoDB_GetCollectionName(b *testing.B) {
+	db, clean := newTestMongoDB(&testing.T{})
+	defer clean()
+
+	m := &mockRecord{}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = db.GetCollectionName(m)
+	}
+}
+
+func TestMongoDB_Find(t *testing.T) {
+
+	var err error
+
+	//setup
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	r1 := &mockRecord{}
+	err = db.Save(r1)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	r2 := &mockRecord{}
+	r2.Object = r1.Object
+
+	err = db.Find(r2)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	compareRecords(r1, r2, t)
+}

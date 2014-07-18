@@ -3,6 +3,7 @@ package perfect
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
@@ -119,4 +120,10 @@ func (key *PrivateKey) UnmarshalJSON(data []byte) (err error) {
 	key.D = skey.D
 
 	return
+}
+
+func MD5Sum(s string) string {
+	hash := md5.New()
+	hash.Write([]byte(s))
+	return hex.EncodeToString(hash.Sum(nil))
 }

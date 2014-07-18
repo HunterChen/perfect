@@ -2,9 +2,12 @@ package db
 
 import (
 	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 	"log"
 	"net/url"
 	"os"
+	"reflect"
+	"strings"
 )
 
 type MongoDB struct {
@@ -134,4 +137,34 @@ func (db *MongoDB) SetDebug(on bool) {
 	} else {
 		mgo.SetLogger(nil)
 	}
+}
+
+//returns a unique id (may be sequential)
+func (db *MongoDB) UniqueId() string {
+	return bson.NewObjectId().Hex()
+}
+
+func (db *MongoDB) GetCollectionName(r Record) string {
+	name := strings.ToLower(reflect.ValueOf(r).Elem().Type().Name())
+
+	//make sure collection names have plural form
+	if !strings.HasSuffix(name, "s") {
+		name += "s"
+	}
+
+	return name
+}
+
+func (db *MongoDB) Save(r Record) error {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Save(r)
+}
+
+func (db *MongoDB) Find(r Record) error {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Find(r)
 }
