@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-    DB "github.com/vpetrov/perfect/db"
+    "github.com/vpetrov/perfect/orm"
 )
 
 func TestNotLoggedIn(t *testing.T) {
@@ -58,7 +58,7 @@ func TestNotLoggedIn(t *testing.T) {
 	}
 
 	//perform another test, but this time the session is going to be authenticated
-	session.Authenticated = DB.Bool(true)
+	session.Authenticated = orm.Bool(true)
 	request.SetSession(session)
 	response = NewMockResponse()
 

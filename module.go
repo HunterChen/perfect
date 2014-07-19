@@ -2,7 +2,7 @@ package perfect
 
 import (
 	"errors"
-	"github.com/vpetrov/perfect/db"
+	"github.com/vpetrov/perfect/orm"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -29,7 +29,7 @@ type Module struct {
 	Path           string
 	SessionTimeout time.Duration
 
-	Db  db.Database
+	Db  orm.Database
 	Log *log.Logger
 
 	Router    Router

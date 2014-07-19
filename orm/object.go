@@ -1,4 +1,4 @@
-package db
+package orm
 
 //An object that can be stored in a database; implements the Record interface
 type Object struct {

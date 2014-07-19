@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-    DB "github.com/vpetrov/perfect/db"
+    "github.com/vpetrov/perfect/orm"
 )
 
 //An interface for any type that can route Survana requests
@@ -72,7 +72,7 @@ func (r *Request) Session() (*Session, error) {
 
     if err != nil {
         //if the session was not found, create a new one
-        if err == DB.ErrNotFound {
+        if err == orm.ErrNotFound {
             session = NewSession(MD5Sum(db.UniqueId()))
             err = db.Save(r.session)
             if err != nil {
@@ -119,7 +119,7 @@ func (r *Request) User() (*User, error) {
     user := &User{Id:session.UserId}
 
 	err = db.Find(user)
-    if err == DB.ErrNotFound {
+    if err == orm.ErrNotFound {
         return nil, nil
     }
 

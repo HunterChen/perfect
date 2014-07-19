@@ -1,4 +1,4 @@
-package db
+package orm
 
 type Record interface {
 	GetDbId() interface{}

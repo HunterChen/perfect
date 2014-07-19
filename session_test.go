@@ -2,11 +2,11 @@ package perfect
 
 import (
 	"testing"
-    "github.com/vpetrov/perfect/db"
+    "github.com/vpetrov/perfect/orm"
 )
 
 var mock_session *Session = &Session{
-    Object: db.Object{Id:1},
+    Object: orm.Object{Id:1},
 	Id:            db.String("ABCD"),
 	Authenticated: db.Bool(true),
 	Values:        &map[string]string{"id": "ABCD", "authenticated": "1"},
