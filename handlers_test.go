@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+    DB "github.com/vpetrov/perfect/db"
 )
 
 func TestNotLoggedIn(t *testing.T) {
@@ -14,8 +15,9 @@ func TestNotLoggedIn(t *testing.T) {
 	request_method := "GET"
 	request_path := "/test"
 	query_string := "?arg1=val1"
+    session_id := "123ABC"
 
-	session := NewSession()
+	session := NewSession(session_id)
 
 	module := &Module{
 		MountPoint: module_mount_point,
@@ -39,7 +41,7 @@ func TestNotLoggedIn(t *testing.T) {
 	request.SetSession(session)
 
 	handler := func(w http.ResponseWriter, r *Request) {
-		if session.Authenticated {
+		if *session.Authenticated {
 			t.Errorf("session.Authenticated is %v, did not expect the handler to be called", session.Authenticated)
 		}
 
@@ -56,7 +58,7 @@ func TestNotLoggedIn(t *testing.T) {
 	}
 
 	//perform another test, but this time the session is going to be authenticated
-	session.Authenticated = true
+	session.Authenticated = DB.Bool(true)
 	request.SetSession(session)
 	response = NewMockResponse()
 

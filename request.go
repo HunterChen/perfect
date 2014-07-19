@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+    DB "github.com/vpetrov/perfect/db"
 )
 
 //An interface for any type that can route Survana requests
@@ -50,7 +51,11 @@ func NewRequest(r *http.Request, path string, module *Module) *Request {
 // returns either an existing session, or a new session
 func (r *Request) Session() (*Session, error) {
 
-	var err error
+	var (
+            err error
+        )
+
+    db := r.Module.Db
 
 	//if the session exists already, return it
 	if r.session != nil {
@@ -60,19 +65,29 @@ func (r *Request) Session() (*Session, error) {
 	//get the session id cookie, if it exists
 	session_id, _ := r.Cookie(SESSION_ID)
 
+    session := &Session{Id:&session_id}
+
 	//create a new session.
-	r.session, err = FindSession(session_id, r.Module.Db)
+	err = db.Find(session)
 
-	//if the session was not found, create a new one
-	if r.session == nil {
-		r.session = NewSession(MD5Sum(r.Module.Db.UniqueId()))
-		err = r.session.Save(r.Module.Db)
-		if err != nil {
-			return nil, err
-		}
-	}
+    if err != nil {
+        //if the session was not found, create a new one
+        if err == DB.ErrNotFound {
+            session = NewSession(MD5Sum(db.UniqueId()))
+            err = db.Save(r.session)
+            if err != nil {
+                return nil, err
+            }
+        } else {
+            //otherwise return the error
+            return nil, err
+        }
+    }
 
-	return r.session, err
+    //cache the session object
+    r.session = session
+
+	return r.session, nil
 }
 
 func (r *Request) SetSession(s *Session) {
@@ -95,15 +110,23 @@ func (r *Request) User() (*User, error) {
 	}
 
 	//if there is no user id, return 'not found'
-	if len(session.UserId) == 0 {
+	if session.UserId == nil {
 		return nil, nil
 	}
 
 	//find the user by id (email)
-	r.user, err = FindUser(session.UserId, r.Module.Db)
+    db := r.Module.Db
+    user := &User{Id:session.UserId}
 
-	//if the user was not found, return nil, otherwise return the user
-	return r.user, err
+	err = db.Find(user)
+    if err == DB.ErrNotFound {
+        return nil, nil
+    }
+
+    //cache the user object
+    r.user = user
+
+	return r.user, nil
 }
 
 // returns the value of the cookie by name

@@ -64,7 +64,13 @@ func (col *MongoDBCollection) Find(r Record) error {
 		return nil
 	}
 
-	return col.Collection.Find(r).One(r)
+    err := col.Collection.Find(r).One(r)
+
+    if err == mgo.ErrNotFound {
+        return ErrNotFound
+    }
+
+    return err
 }
 
 func (col *MongoDBCollection) Query(q interface{}) Query {
