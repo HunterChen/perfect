@@ -2,12 +2,12 @@ package perfect
 
 import (
 	"encoding/json"
+	"github.com/vpetrov/perfect/orm"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-    "github.com/vpetrov/perfect/orm"
 )
 
 //An interface for any type that can route Survana requests
@@ -52,10 +52,10 @@ func NewRequest(r *http.Request, path string, module *Module) *Request {
 func (r *Request) Session() (*Session, error) {
 
 	var (
-            err error
-        )
+		err error
+	)
 
-    db := r.Module.Db
+	db := r.Module.Db
 
 	//if the session exists already, return it
 	if r.session != nil {
@@ -65,27 +65,27 @@ func (r *Request) Session() (*Session, error) {
 	//get the session id cookie, if it exists
 	session_id, _ := r.Cookie(SESSION_ID)
 
-    session := &Session{Id:&session_id}
+	session := &Session{Id: &session_id}
 
 	//create a new session.
 	err = db.Find(session)
 
-    if err != nil {
-        //if the session was not found, create a new one
-        if err == orm.ErrNotFound {
-            session = NewSession(MD5Sum(db.UniqueId()))
-            err = db.Save(r.session)
-            if err != nil {
-                return nil, err
-            }
-        } else {
-            //otherwise return the error
-            return nil, err
-        }
-    }
+	if err != nil {
+		//if the session was not found, create a new one
+		if err == orm.ErrNotFound {
+			session = NewSession(MD5Sum(db.UniqueId()))
+			err = db.Save(r.session)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			//otherwise return the error
+			return nil, err
+		}
+	}
 
-    //cache the session object
-    r.session = session
+	//cache the session object
+	r.session = session
 
 	return r.session, nil
 }
@@ -115,16 +115,16 @@ func (r *Request) User() (*User, error) {
 	}
 
 	//find the user by id (email)
-    db := r.Module.Db
-    user := &User{Id:session.UserId}
+	db := r.Module.Db
+	user := &User{Id: session.UserId}
 
 	err = db.Find(user)
-    if err == orm.ErrNotFound {
-        return nil, nil
-    }
+	if err == orm.ErrNotFound {
+		return nil, nil
+	}
 
-    //cache the user object
-    r.user = user
+	//cache the user object
+	r.user = user
 
 	return r.user, nil
 }
