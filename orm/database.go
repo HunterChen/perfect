@@ -23,14 +23,18 @@ type Database interface {
 
 	Save(Record) error
 	Find(Record) error
+	Remove(Record) error
 }
 
 type Collection interface {
 	Name() string
 	Count() (n int, err error)
 	Drop() error
+
 	Save(Record) error
 	Find(Record) error
+	Remove(Record) error
+
 	Query(interface{}) Query
 }
 

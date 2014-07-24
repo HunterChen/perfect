@@ -168,3 +168,10 @@ func (db *MongoDB) Find(r Record) error {
 
 	return col.Find(r)
 }
+
+func (db *MongoDB) Remove(r Record) error {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Remove(r)
+}

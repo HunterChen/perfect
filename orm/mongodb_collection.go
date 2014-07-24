@@ -64,13 +64,26 @@ func (col *MongoDBCollection) Find(r Record) error {
 		return nil
 	}
 
-    err := col.Collection.Find(r).One(r)
+	err := col.Collection.Find(r).One(r)
 
-    if err == mgo.ErrNotFound {
-        return ErrNotFound
-    }
+	if err == mgo.ErrNotFound {
+		return ErrNotFound
+	}
 
-    return err
+	return err
+}
+
+func (col *MongoDBCollection) Remove(r Record) error {
+	if col.Collection == nil {
+		return nil
+	}
+
+	err := col.Collection.Remove(r)
+	if err == mgo.ErrNotFound {
+		return ErrNotFound
+	}
+
+	return err
 }
 
 func (col *MongoDBCollection) Query(q interface{}) Query {

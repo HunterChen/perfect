@@ -384,3 +384,37 @@ func TestMongoDB_Find(t *testing.T) {
 
 	compareRecords(r1, r2, t)
 }
+
+func TestMongoDB_Remove(t *testing.T) {
+	var err error
+
+	//setup
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	r1 := &mockRecord{}
+	err = db.Save(r1)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	r2 := &mockRecord{}
+	r2.Object = r1.Object
+
+	//find the record
+	err = db.Find(r2)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//remove it
+	err = db.Remove(r2)
+	if err != nil {
+		t.Fatalf("err =%v", err)
+	}
+
+	err = db.Find(r2)
+	if err != ErrNotFound {
+		t.Fatalf("error is '%v', expected '%v'", err, ErrNotFound)
+	}
+}
