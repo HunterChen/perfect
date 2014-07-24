@@ -1,90 +1,99 @@
 package auth
 
 import (
-        "log"
-        "time"
-        "crypto/sha512"
-        "crypto/rand"
-        "encoding/base64"
-        "net/http"
-        "github.com/vpetrov/perfect"
-       )
+	"crypto/rand"
+	"crypto/sha512"
+	"encoding/base64"
+	"errors"
+	"github.com/vpetrov/perfect"
+	"github.com/vpetrov/perfect/orm"
+	"log"
+	"net/http"
+	"time"
+)
 
 //authentication strategy keys
 const (
-        BUILTIN = "built-in"
-        OAUTH2  = "oauth2"
-        LDAP    = "ldap"
-        NIS     = "nis"
-      )
+	BUILTIN = "built-in"
+	OAUTH2  = "oauth2"
+	LDAP    = "ldap"
+	NIS     = "nis"
+)
 
 const (
-        LOGIN_PATH = "/login"
-      )
+	LOGIN_PATH = "/login"
+)
 
 var (
-        auth_strategies map[string]NewStrategyFunc = map[string]NewStrategyFunc{
-                                                         BUILTIN: NewBuiltinStrategyFunc,
-                                                     }
-    )
+	auth_strategies map[string]NewStrategyFunc = map[string]NewStrategyFunc{
+		BUILTIN: NewBuiltinStrategyFunc,
+	}
+
+	ErrInvalidUsernameOrPassword = errors.New("Invalid username or password")
+)
 
 func New(config *Config) Strategy {
 
-    newfunc, ok := auth_strategies[config.Type]
-    if !ok {
-        log.Fatalf("ERROR: Authentication type '%v' is not yet supported.", config.Type)
-        return nil
-    }
+	newfunc, ok := auth_strategies[config.Type]
+	if !ok {
+		log.Fatalf("ERROR: Authentication type '%v' is not yet supported.", config.Type)
+		return nil
+	}
 
-    if newfunc == nil {
-        log.Fatalf("ERROR: No such authentication handler for '%v' authentication.", config.Type)
-        return nil
-    }
+	if newfunc == nil {
+		log.Fatalf("ERROR: No such authentication handler for '%v' authentication.", config.Type)
+		return nil
+	}
 
-    return newfunc(config)
+	return newfunc(config)
 }
 
 //TODO: use RWMutex in case this is called from different goroutines
 func AddStrategy(name string, newfunc NewStrategyFunc) {
-    auth_strategies[name] = newfunc
+	auth_strategies[name] = newfunc
 }
 
 func Login(w http.ResponseWriter, r *perfect.Request) {
-    //get the session
+	var (
+		profile_id *string
+		err        error
+	)
+
+	//get the session
 	session, err := r.Session()
 	if err != nil {
 		perfect.Error(w, err)
 		return
 	}
 
-    //if the user is already authenticated, redirect to home
-	if session != nil && session.Authenticated {
+	//if the user is already authenticated, redirect to home
+	if *session.Authenticated {
 		perfect.Redirect(w, r, "/")
 		return
 	}
 
-    //TODO: make this work! (and delete the hard-coded built-in strategy!)
-    //user, err := r.Module.Auth.Login(w, r);
-    bauth := NewBuiltinStrategy(&Config{Type:BUILTIN})
-    profile_id, err := bauth.Login(w, r);
+	//TODO: make this work! (and delete the hard-coded built-in strategy!)
+	//user, err := r.Module.Auth.Login(w, r);
+	bauth := NewBuiltinStrategy(&Config{Type: BUILTIN})
+	profile_id, err = bauth.Login(w, r)
 
-    if err != nil {
-        log.Println("login error:", err)
-        perfect.JSONResult(w, false, err.Error())
-        return
-    }
+	if err != nil {
+		log.Println("login error:", err)
+		perfect.JSONResult(w, false, err.Error())
+		return
+	}
 
 	//mark the session as authenticated
-	session.Authenticated = true
+	session.Authenticated = orm.Bool(true)
 
 	//regenerate the session Id
-	session.Id = r.Module.Db.UniqueId()
+	session.Id = orm.String(r.Module.Db.UniqueId())
 
 	//set the current user
 	session.UserId = profile_id
 
 	// update the session
-	err = session.Save(r.Module.Db)
+	err = r.Module.Db.Save(session)
 	if err != nil {
 		perfect.Error(w, err)
 		return
@@ -93,15 +102,15 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 	//set the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     perfect.SESSION_ID,
-		Value:    session.Id,
+		Value:    *session.Id,
 		Path:     r.Module.MountPoint,
 		Expires:  time.Now().Add(perfect.SESSION_TIMEOUT),
 		Secure:   true,
 		HttpOnly: true,
 	})
 
-    //success
-    perfect.JSONResult(w, true, r.Module.MountPoint + "/")
+	//success
+	perfect.JSONResult(w, true, r.Module.MountPoint+"/")
 }
 
 //Logs out a user.
@@ -115,13 +124,13 @@ func logout(w http.ResponseWriter, r *perfect.Request) {
 		return
 	}
 
-	if !session.Authenticated {
+	if !*session.Authenticated {
 		perfect.NoContent(w)
 		return
 	}
 
-	err = session.Delete(r.Module.Db)
-	if err != nil {
+	err = r.Module.Db.Remove(session)
+	if err != nil && err != orm.ErrNotFound {
 		perfect.Error(w, err)
 		return
 	}
@@ -145,28 +154,28 @@ func logout(w http.ResponseWriter, r *perfect.Request) {
 }
 
 func generateRandomSalt(nbytes int) string {
-    //allocate a slice of nbytes bytes
-    random_bytes := make([]byte, nbytes)
-    //read random data from a crypto rng
-    rand.Read(random_bytes)
+	//allocate a slice of nbytes bytes
+	random_bytes := make([]byte, nbytes)
+	//read random data from a crypto rng
+	rand.Read(random_bytes)
 
-    return base64.StdEncoding.EncodeToString(random_bytes)
+	return base64.StdEncoding.EncodeToString(random_bytes)
 }
 
 //salt prevents rainbow attacks. We insert some characters to block trivial attempts
 //at guessing the salting function. That said, the attack could just look at the source
 //code to find this function, but we still try to make it as hard as possible to guess it.
 func salt(password, salt string) string {
-    return "$" + salt + "::" + password + "::" + salt + "$"
+	return "$" + salt + "::" + password + "::" + salt + "$"
 }
 
 func hash(password, password_salt string) []byte {
-    //salt the password string
-    salted_password := salt(password, password_salt)
+	//salt the password string
+	salted_password := salt(password, password_salt)
 
-    hash := sha512.New()
+	hash := sha512.New()
 
-    return hash.Sum([]byte(salted_password))
+	return hash.Sum([]byte(salted_password))
 }
 
 //A handler that filters all requests that have not been authenticated
@@ -182,15 +191,15 @@ func Protect(handler perfect.RequestHandler) perfect.RequestHandler {
 		}
 
 		//if the session hasn't been authorized, redirect
-		if !session.Authenticated {
-            redirect_path := LOGIN_PATH
+		if !*session.Authenticated {
+			redirect_path := LOGIN_PATH
 
-            w.Header().Set("X-Session-Expired", "1")
+			w.Header().Set("X-Session-Expired", "1")
 
-            //forward query params
-            if len(r.URL.RawQuery) > 0 {
-                redirect_path += "?" + r.URL.RawQuery
-            }
+			//forward query params
+			if len(r.URL.RawQuery) > 0 {
+				redirect_path += "?" + r.URL.RawQuery
+			}
 
 			perfect.Redirect(w, r, redirect_path)
 			return
@@ -200,4 +209,3 @@ func Protect(handler perfect.RequestHandler) perfect.RequestHandler {
 		handler(w, r)
 	}
 }
-
