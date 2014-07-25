@@ -10,43 +10,43 @@ import (
 
 type mockRecord struct {
 	Object `bson:",inline,omitempty" json:"-"`
-	S      string  `S`
-	I      int     `I`
-	I8     int8    `I8`
-	I16    int16   `I16`
-	I32    int32   `I32`
-	I64    int64   `I64`
-	BOOL   bool    `BOOL`
-	B      byte    `B`
-	F32    float32 `F32`
-	F64    float64 `F64`
-	R      rune    `R`
-	UI     uint    `UI`
-	UI8    uint8   `UI8`
-	UI16   uint16  `UI16`
-	UI32   uint32  `UI32`
+	S      string  `bson:"S" json:"S"`
+	I      int     `bson:"I" json:"I"`
+	I8     int8    `bson:"I8" json:"I8"`
+	I16    int16   `bson:"I16" json:"I16"`
+	I32    int32   `bson:"I32" json:"I32"`
+	I64    int64   `bson:"I64" json:"I64"`
+	BOOL   bool    `bson:"BOOL" json:"BOOL"`
+	B      byte    `bson:"B" json:"B"`
+	F32    float32 `bson:"F32" json:"F32"`
+	F64    float64 `bson:"F64" json:"F64"`
+	R      rune    `bson:"R" json:"R"`
+	UI     uint    `bson:"UI" json:"UI"`
+	UI8    uint8   `bson:"UI8" json:"UI8"`
+	UI16   uint16  `bson:"UI16" json:"UI16"`
+	UI32   uint32  `bson:"UI32" json:"UI32"`
 	//UI64   uint64 //bson has no UINT64 type
-	M map[string]string `M`
-	A []string          `A`
+	M map[string]string `bson:"M" json:"M"`
+	A []string          `bson:"A" json:"A"`
 
-	PS    *string  `PS`
-	PI    *int     `PI`
-	PI8   *int8    `PI8`
-	PI16  *int16   `PI16`
-	PI32  *int32   `PI32`
-	PI64  *int64   `PI64`
-	PBOOL *bool    `PBOOL`
-	PB    *byte    `PB`
-	PF32  *float32 `PF32`
-	PF64  *float64 `PF64`
-	PR    *rune    `PR`
-	PUI   *uint    `PUI`
-	PUI8  *uint8   `PUI8`
-	PUI16 *uint16  `PUI16`
-	PUI32 *uint32  `PUI32`
+	PS    *string  `bson:"PS" json:"PS"`
+	PI    *int     `bson:"PI" json:"PI"`
+	PI8   *int8    `bson:"PI8" json:"PI8"`
+	PI16  *int16   `bson:"PI16" json:"PI16"`
+	PI32  *int32   `bson:"PI32" json:"PI32"`
+	PI64  *int64   `bson:"PI64" json:"PI64"`
+	PBOOL *bool    `bson:"PBOOL" json:"PBOOL"`
+	PB    *byte    `bson:"PB" json:"PB"`
+	PF32  *float32 `bson:"PF32" json:"PF32"`
+	PF64  *float64 `bson:"PF64" json:"PF64"`
+	PR    *rune    `bson:"PR" json:"PR"`
+	PUI   *uint    `bson:"PUI" json:"PUI"`
+	PUI8  *uint8   `bson:"PUI8" json:"PUI8"`
+	PUI16 *uint16  `bson:"PUI16" json:"PUI16"`
+	PUI32 *uint32  `bson:"PUI32" json:"PUI32"`
 	//UI64   uint64 //bson has no UINT64 type
-	PM *map[string]string `PM`
-	PA *[]string          `PA`
+	PM *map[string]string `bson:"PM" json:"PM"`
+	PA *[]string          `bson:"PA" json:"PA"`
 }
 
 func (m mockRecord) Copy() *mockRecord {
@@ -338,7 +338,7 @@ func TestMongoDBCollection_NameOffline(t *testing.T) {
 	actual_name := col.Name()
 
 	if len(actual_name) != 0 {
-		t.Fatalf("Collection name is '$v', expected empty string", actual_name)
+		t.Fatalf("Collection name is '%v', expected empty string", actual_name)
 	}
 }
 

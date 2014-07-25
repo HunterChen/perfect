@@ -78,7 +78,7 @@ func setupAuth(db *MongoDB, username, password string, t *testing.T) func() {
 	return func() {
 		err := db.Database.RemoveUser(username)
 		if err != nil {
-			t.Fatalf("err = %v")
+			t.Fatalf("err = %v", err)
 		}
 	}
 }
