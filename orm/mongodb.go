@@ -182,3 +182,10 @@ func (db *MongoDB) DropCollection(r Record) error {
 
 	return col.Drop()
 }
+
+func (db *MongoDB) Query(r Record) Query {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Query(r)
+}

@@ -25,6 +25,8 @@ type Database interface {
 	Save(Record) error
 	Find(Record) error
 	Remove(Record) error
+
+	Query(Record) Query
 }
 
 type Collection interface {
