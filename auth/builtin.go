@@ -58,11 +58,11 @@ func (b *BuiltinStrategy) Attach(module *perfect.Module) {
 }
 
 func (b *BuiltinStrategy) LoginPage(w http.ResponseWriter, r *perfect.Request) {
-	r.Module.RenderTemplate(w, "auth/builtin/login", b.Config)
+	r.Module.RenderTemplate(w, r, "auth/builtin/login", b.Config)
 }
 
 func (b *BuiltinStrategy) RegistrationPage(w http.ResponseWriter, r *perfect.Request) {
-	r.Module.RenderTemplate(w, "auth/builtin/register", nil)
+	r.Module.RenderTemplate(w, r, "auth/builtin/register", nil)
 }
 
 func (b *BuiltinStrategy) Login(w http.ResponseWriter, r *perfect.Request) (profile_id *string, err error) {
@@ -115,7 +115,7 @@ func (b *BuiltinStrategy) Register(w http.ResponseWriter, r *perfect.Request) {
 	//get the session
 	session, err := r.Session()
 	if err != nil {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -129,7 +129,7 @@ func (b *BuiltinStrategy) Register(w http.ResponseWriter, r *perfect.Request) {
 
 	err = r.ParseJSON(&data)
 	if err != nil {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -140,17 +140,17 @@ func (b *BuiltinStrategy) Register(w http.ResponseWriter, r *perfect.Request) {
 
 	//TODO: this needs to be refactored into something better
 	if !ok1 || !ok2 || !ok3 || !ok4 || len(username) == 0 || len(password) == 0 || len(name) == 0 || len(email) == 0 {
-		perfect.JSONResult(w, false, "Please complete all fields")
+		perfect.JSONResult(w, r, false, "Please complete all fields")
 		return
 	}
 
 	_, _, err = createBuiltinProfile(username, password, email, name, r.Module.Db)
 	if err != nil {
-		perfect.JSONResult(w, true, r.Module.MountPoint+"/")
+		perfect.JSONResult(w, r, true, r.Module.MountPoint+"/")
 		return
 	}
 
-	perfect.JSONResult(w, false, err)
+	perfect.JSONResult(w, r, false, err)
 }
 
 //default logout
