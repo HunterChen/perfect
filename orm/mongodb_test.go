@@ -418,3 +418,58 @@ func TestMongoDB_Remove(t *testing.T) {
 		t.Fatalf("error is '%v', expected '%v'", err, ErrNotFound)
 	}
 }
+
+func TestMongoDB_DropCollection(t *testing.T) {
+	var (
+		err      error
+		col_name string
+		r1, r2   mockRecord
+	)
+
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	//create an empty collection
+	col_name = db.GetCollectionName(&r1)
+	col := db.C(col_name)
+	err = col.Drop()
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//store first record
+	err = col.Save(&r1)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//store the second record
+	err = col.Save(&r2)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//there should now be 2 records in this collection
+	nrecords, err := col.Count()
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if nrecords != 2 {
+		t.Fatalf("Collection '%v' has %v records, expected exactly %v records instead", col_name, nrecords, 2)
+	}
+
+	//drop the collection
+	err = db.DropCollection(&r1)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//there should now be 0 records in this collection
+	nrecords, err = col.Count()
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if nrecords != 0 {
+		t.Fatalf("Collection '%v' has %v records, expected exactly %v records instead", col_name, nrecords, 0)
+	}
+}

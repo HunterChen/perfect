@@ -51,10 +51,13 @@ func (col *MongoDBCollection) Save(r Record) error {
 	if id == nil {
 		id = bson.NewObjectId()
 		r.SetDbId(id)
+		_, err = col.Collection.UpsertId(id, r)
+	} else {
+		//update or insert a new object
+		r.SetDbId(nil)
+		_, err = col.Collection.UpsertId(id, bson.M{"$set": r})
+		r.SetDbId(id)
 	}
-
-	//update or insert a new object
-	_, err = col.Collection.UpsertId(id, r)
 
 	return err
 }

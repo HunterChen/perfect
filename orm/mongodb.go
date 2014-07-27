@@ -175,3 +175,10 @@ func (db *MongoDB) Remove(r Record) error {
 
 	return col.Remove(r)
 }
+
+func (db *MongoDB) DropCollection(r Record) error {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Drop()
+}
