@@ -89,8 +89,8 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 	//regenerate the session Id
 	session.Id = orm.String(r.Module.Db.UniqueId())
 
-	//set the current user
-	session.UserId = profile_id
+	//set the current user profile id
+	session.ProfileId = profile_id
 
 	// update the session
 	err = r.Module.Db.Save(session)

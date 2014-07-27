@@ -162,7 +162,7 @@ func (b *BuiltinStrategy) Logout(w http.ResponseWriter, r *perfect.Request) {
 func setupAdminAccount(module *perfect.Module) {
 	var (
 		admin_user    *builtinUser
-		admin_profile *perfect.User
+		admin_profile *perfect.Profile
 		err           error
 		db            orm.Database = module.Db
 	)
@@ -180,7 +180,7 @@ func setupAdminAccount(module *perfect.Module) {
 
 	/* at this point, the user doesn't exist, so we'll create an admin profile and admin user */
 	//create profile
-	admin_profile = perfect.NewUser(ADMIN_EMAIL, ADMIN_NAME)
+	admin_profile = perfect.NewProfile(ADMIN_EMAIL, ADMIN_NAME)
 	admin_profile.AuthType = orm.String(BUILTIN)
 
 	//save the admin profile
@@ -208,7 +208,7 @@ func setupAdminAccount(module *perfect.Module) {
 	}
 }
 
-func createBuiltinProfile(username, password, name, email string, db orm.Database) (user *builtinUser, profile *perfect.User, err error) {
+func createBuiltinProfile(username, password, name, email string, db orm.Database) (user *builtinUser, profile *perfect.Profile, err error) {
 	user = &builtinUser{Id: &username}
 
 	//query the database to check if the username exists
@@ -222,7 +222,7 @@ func createBuiltinProfile(username, password, name, email string, db orm.Databas
 	}
 
 	//create a perfect user (profile)
-	profile = perfect.NewUser(email, name)
+	profile = perfect.NewProfile(email, name)
 	profile.AuthType = orm.String(BUILTIN)
 	err = db.Save(profile)
 	if err != nil {

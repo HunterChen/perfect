@@ -4,7 +4,7 @@ import (
 	"github.com/vpetrov/perfect/orm"
 )
 
-type User struct {
+type Profile struct {
 	orm.Object `bson:",inline,omitempty" json:"-"`
 	Id         *string   `bson:"id,omitempty" json:"id,omitempty"`
 	Name       *string   `bson:"name,omitempty" json:"name,omitempty"`
@@ -12,8 +12,8 @@ type User struct {
 	AuthType   *string   `bson:"auth_type,omitempty" json:"auth_type,omitempty"`
 }
 
-func NewUser(email, name string) *User {
-	return &User{
+func NewProfile(email, name string) *Profile {
+	return &Profile{
 		Id:   orm.String(email),
 		Name: orm.String(name),
 	}
