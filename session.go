@@ -13,10 +13,10 @@ const (
 //Id and Authenticated are aliases for Values['id'] and Values['authenticated']
 type Session struct {
 	orm.Object    `bson:",inline,omitempty" json:"-"`
-	Id            *string            `bson:"id,omitempty" json:"id"`        //the publicly visible session id
-	ProfileId     *string            `bson:"profile_id,omitempty" json:"-"` //the profile id this session is associated with
-	Authenticated *bool              `bson:"authenticated" json:"-"`        //whether the user has logged in or not
-	Values        *map[string]string `bson:"values" json:"-"`               //all other values go here
+	Id            *string            `bson:"id,omitempty" json:"id"`           //the publicly visible session id
+	ProfileId     *string            `bson:"profile_id,omitempty" json:"-"`    //the profile id this session is associated with
+	Authenticated *bool              `bson:"authenticated,omitempty" json:"-"` //whether the user has logged in or not
+	Values        *map[string]string `bson:"values,omitempty" json:"-"`        //all other values go here
 }
 
 //creates a new Session object with no Id.
