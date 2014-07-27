@@ -24,6 +24,7 @@ var (
 //A Perfect Module is a standalone component that can be mounted on
 //URL paths and can decide how requests are routed.
 type Module struct {
+	*Mux
 	Name           string
 	MountPoint     string
 	Path           string
@@ -32,10 +33,7 @@ type Module struct {
 	Db  orm.Database
 	Log *log.Logger
 
-	Router    Router
 	Templates *template.Template
-
-	Mux *RESTMux
 }
 
 //parses all template files from the 'templates' folder of the module
@@ -80,17 +78,17 @@ func (m *Module) ParseTemplates() error {
 }
 
 // renders a template file
-func (m *Module) RenderTemplate(w http.ResponseWriter, path string, data interface{}) {
+func (m *Module) RenderTemplate(w http.ResponseWriter, r *Request, path string, data interface{}) {
 	tpl := m.Templates.Lookup(path)
 	if tpl == nil {
-		Error(w, errors.New("Template not found: "+path))
+		Error(w, r, errors.New("Template not found: "+path))
 		return
 	}
 
 	err := tpl.Execute(w, data)
 
 	if err != nil {
-		Error(w, err)
+		Error(w, r, err)
 		return
 	}
 }

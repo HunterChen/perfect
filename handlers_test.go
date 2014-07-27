@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/vpetrov/perfect/orm"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -110,17 +111,21 @@ func TestNoContent(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	response := NewMockResponse()
+	request := &Request{
+		Module:  &Module{},
+		Request: &http.Request{},
+	}
+	response := httptest.NewRecorder()
 	err := errors.New("test")
 
-	Error(response, err)
+	Error(response, request, err)
 
-	if response.Status != http.StatusInternalServerError {
-		t.Errorf("response.Status is %v, expected %v (http.StatusInternalServerError)", response.Status, http.StatusNoContent)
+	if response.Code != http.StatusInternalServerError {
+		t.Errorf("response.Code is %v, expected %v (http.StatusInternalServerError)", response.Code, http.StatusNoContent)
 	}
 
-	if len(response.Data) == 0 {
-		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))
+	if response.Body.Len() == 0 {
+		t.Errorf("response.Body.Len() is %v, expected non-zero", response.Body.Len())
 	}
 }
 
@@ -284,13 +289,17 @@ func TestXHRRedirect(t *testing.T) {
 }
 
 func TestJSONResult(t *testing.T) {
+	request := &Request{
+		Module:  &Module{},
+		Request: &http.Request{},
+	}
 	response := NewMockResponse()
 	expected_response := &JSONResponse{
 		Success: true,
 		Message: "This is a test",
 	}
 
-	JSONResult(response, expected_response.Success, expected_response.Message)
+	JSONResult(response, request, expected_response.Success, expected_response.Message)
 
 	if len(response.Data) == 0 {
 		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))

@@ -2,7 +2,6 @@ package perfect
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -19,7 +18,7 @@ func NotLoggedIn(handler RequestHandler) RequestHandler {
 		//get the session
 		session, err := r.Session()
 		if err != nil {
-			Error(w, err)
+			Error(w, r, err)
 			return
 		}
 
@@ -44,11 +43,15 @@ func NoContent(w http.ResponseWriter) {
 }
 
 //returns 500 Internal Server Error, and prints the error to the server log
-func Error(w http.ResponseWriter, err error) {
-	debug.PrintStack()
-	_, file, line, _ := runtime.Caller(1)
-	log.Printf("ERROR:%s:%d: %s\n", file, line, err)
+func Error(w http.ResponseWriter, r *Request, err error) {
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+
+	//log the error
+	if r.Module.Log != nil {
+		info := debug.Stack()
+		_, file, line, _ := runtime.Caller(1)
+		r.Module.Log.Printf("ERROR:%s:%d: %s\n%s", file, line, err, info)
+	}
 }
 
 //redirects a request to a path relative to the module
@@ -76,11 +79,11 @@ func XHRRedirect(w http.ResponseWriter, r *Request, url string) {
 
 	w.Header().Set("X-Survana-Redirect", url)
 
-	JSONResult(w, false, data)
+	JSONResult(w, r, false, data)
 }
 
 //sends a { 'success': <bool>, 'message': <custom data> } response to the client
-func JSONResult(w http.ResponseWriter, success bool, data interface{}) {
+func JSONResult(w http.ResponseWriter, r *Request, success bool, data interface{}) {
 
 	result := &JSONResponse{
 		Success: success,
@@ -89,7 +92,7 @@ func JSONResult(w http.ResponseWriter, success bool, data interface{}) {
 
 	jsondata, err := json.Marshal(result)
 	if err != nil {
-		Error(w, err)
+		Error(w, r, err)
 		return
 	}
 
