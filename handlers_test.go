@@ -29,7 +29,7 @@ func TestNotLoggedIn(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	http_request := &http.Request{
 		Method: request_method,
@@ -54,14 +54,14 @@ func TestNotLoggedIn(t *testing.T) {
 	//call the auth handler
 	auth_handler(response, request)
 
-	if response.Status == http.StatusSeeOther {
-		t.Errorf("response.Status is %v, expected %v (http.StatusOK)", response.Status, http.StatusSeeOther)
+	if response.Code == http.StatusSeeOther {
+		t.Errorf("response.Code is %v, expected %v (http.StatusOK)", response.Code, http.StatusSeeOther)
 	}
 
 	//perform another test, but this time the session is going to be authenticated
 	session.Authenticated = orm.Bool(true)
 	request.SetSession(session)
-	response = NewMockResponse()
+	response = httptest.NewRecorder()
 
 	handler2_called := false
 
@@ -77,36 +77,36 @@ func TestNotLoggedIn(t *testing.T) {
 		t.Errorf("expected handler2 to not be called")
 	}
 
-	if response.Status != http.StatusSeeOther {
-		t.Errorf("response.Status is %v, expected %v (http.StatusSeeOther)", response.Status, http.StatusSeeOther)
+	if response.Code != http.StatusSeeOther {
+		t.Errorf("response.Code is %v, expected %v (http.StatusSeeOther)", response.Code, http.StatusSeeOther)
 	}
 }
 
 func TestNotFound(t *testing.T) {
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	NotFound(response)
 
-	if response.Status != http.StatusNotFound {
-		t.Errorf("responses.Status is %v, expected %v (http.StatusNotFound)", response.Status, http.StatusNotFound)
+	if response.Code != http.StatusNotFound {
+		t.Errorf("responses.Status is %v, expected %v (http.StatusNotFound)", response.Code, http.StatusNotFound)
 	}
 
-	if len(response.Data) == 0 {
-		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))
+	if response.Body.Len() == 0 {
+		t.Errorf("response.Body.Len() is %v, expected non-zero", response.Body.Len())
 	}
 }
 
 func TestNoContent(t *testing.T) {
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	NoContent(response)
 
-	if response.Status != http.StatusNoContent {
-		t.Errorf("responses.Status is %v, expected %v (http.StatusNoContent)", response.Status, http.StatusNoContent)
+	if response.Code != http.StatusNoContent {
+		t.Errorf("responses.Status is %v, expected %v (http.StatusNoContent)", response.Code, http.StatusNoContent)
 	}
 
-	if len(response.Data) != 0 {
-		t.Errorf("len(response.Data) is %v, expected zero", len(response.Data))
+	if response.Body.Len() != 0 {
+		t.Errorf("response.Body.Len() is %v, expected zero", response.Body.Len())
 	}
 }
 
@@ -146,7 +146,7 @@ func TestRedirectSimple(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	http_request := &http.Request{
 		Method: request_method,
@@ -158,12 +158,12 @@ func TestRedirectSimple(t *testing.T) {
 
 	Redirect(response, request, redirect_path)
 
-	//response.Status has to be StatusSeeOther
-	if response.Status != http.StatusSeeOther {
-		t.Errorf("response.Status is %v, expected %v (http.StatusSeeOther)", response.Status, http.StatusSeeOther)
+	//response.Code has to be StatusSeeOther
+	if response.Code != http.StatusSeeOther {
+		t.Errorf("response.Code is %v, expected %v (http.StatusSeeOther)", response.Code, http.StatusSeeOther)
 	}
 
-	location := response.Headers.Get("Location")
+	location := response.HeaderMap.Get("Location")
 
 	//the redirect must be relative to the module mount point
 	if !strings.HasPrefix(location, module.MountPoint) {
@@ -176,7 +176,7 @@ func TestRedirectSimple(t *testing.T) {
 	}
 
 	//verify that X-Survana-Redirect isn't set
-	_, ok := response.Headers["X-Survana-Redirect"]
+	_, ok := response.HeaderMap["X-Survana-Redirect"]
 
 	if ok {
 		t.Errorf("X-Survana-Redirect header is '%v', expected this header value to not be set.", location)
@@ -199,7 +199,7 @@ func TestRedirectWithXHR(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	http_request := &http.Request{
 		Method: request_method,
@@ -215,7 +215,7 @@ func TestRedirectWithXHR(t *testing.T) {
 	Redirect(response, request, redirect_path)
 
 	//verify that X-Survana-Redirect is set
-	x_survana_redirect_header, ok := response.Headers["X-Survana-Redirect"]
+	x_survana_redirect_header, ok := response.HeaderMap["X-Survana-Redirect"]
 
 	if !ok {
 		t.Errorf("X-Survana-Redirect header not present, expected it to be set")
@@ -255,7 +255,7 @@ func TestXHRRedirect(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	http_request := &http.Request{
 		Method: request_method,
@@ -270,7 +270,7 @@ func TestXHRRedirect(t *testing.T) {
 	XHRRedirect(response, request, redirect_path)
 
 	//verify that X-Survana-Redirect is set
-	x_survana_redirect_header, ok := response.Headers["X-Survana-Redirect"]
+	x_survana_redirect_header, ok := response.HeaderMap["X-Survana-Redirect"]
 
 	if !ok {
 		t.Errorf("X-Survana-Redirect header not present, expected it to be set")
@@ -293,7 +293,7 @@ func TestJSONResult(t *testing.T) {
 		Module:  &Module{},
 		Request: &http.Request{},
 	}
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 	expected_response := &JSONResponse{
 		Success: true,
 		Message: "This is a test",
@@ -301,13 +301,13 @@ func TestJSONResult(t *testing.T) {
 
 	JSONResult(response, request, expected_response.Success, expected_response.Message)
 
-	if len(response.Data) == 0 {
-		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))
+	if response.Body.Len() == 0 {
+		t.Errorf("response.Body.Len() is %v, expected non-zero", response.Body.Len())
 	}
 
 	//unmarshal the response
 	actual_response := JSONResponse{}
-	err := json.Unmarshal(response.Data, &actual_response)
+	err := json.Unmarshal(response.Body.Bytes(), &actual_response)
 	if err != nil {
 		t.Errorf("err = %v", err)
 	}
@@ -322,31 +322,31 @@ func TestJSONResult(t *testing.T) {
 }
 
 func TestBadRequest(t *testing.T) {
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 
 	BadRequest(response)
 
-	if response.Status != http.StatusBadRequest {
-		t.Errorf("response.Status is %v, expected %v (http.StatusBadRequest)", response.Status, http.StatusBadRequest)
+	if response.Code != http.StatusBadRequest {
+		t.Errorf("response.Code is %v, expected %v (http.StatusBadRequest)", response.Code, http.StatusBadRequest)
 	}
 
-	if len(response.Data) == 0 {
-		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))
+	if response.Body.Len() == 0 {
+		t.Errorf("response.Body.Len() is %v, expected non-zero", response.Body.Len())
 	}
 }
 
 func TestUnauthorized(t *testing.T) {
-	response := NewMockResponse()
+	response := httptest.NewRecorder()
 	err := errors.New("Access is denied")
 
 	Unauthorized(response, err)
 
-	if response.Status != http.StatusUnauthorized {
-		t.Errorf("response.Status is %v, expected %v (http.StatusUnauthorized)", response.Status, http.StatusUnauthorized)
+	if response.Code != http.StatusUnauthorized {
+		t.Errorf("response.Code is %v, expected %v (http.StatusUnauthorized)", response.Code, http.StatusUnauthorized)
 	}
 
-	if len(response.Data) == 0 {
-		t.Errorf("len(response.Data) is %v, expected non-zero", len(response.Data))
+	if response.Body.Len() == 0 {
+		t.Errorf("response.Body.Len() is %v, expected non-zero", response.Body.Len())
 	}
 }
 
