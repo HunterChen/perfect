@@ -2,51 +2,9 @@ package perfect
 
 import (
 	"github.com/vpetrov/perfect/orm"
-	"net/url"
-	"os"
 	"reflect"
 	"testing"
 )
-
-const (
-	defaultDBName = "test1"
-	defaultDBUrl  = "mongodb://localhost/" + defaultDBName
-)
-
-var mock_session *Session = &Session{
-	Object:        orm.Object{Id: 1},
-	Id:            orm.String("ABCD"),
-	Authenticated: orm.Bool(true),
-	Values:        &map[string]string{"id": "ABCD", "authenticated": "1"},
-}
-
-var dbUrl string
-
-func NewTestDatabase(dburl string, t *testing.T) (db orm.Database, clean func()) {
-	u, err := url.Parse(dburl)
-	if err != nil {
-		t.Fatalf("err = %v", err)
-	}
-
-	db, err = orm.NewDatabase(u, defaultDBName)
-	if err != nil {
-		t.Fatalf("err = %v", err)
-	}
-
-	err = db.Connect()
-	if err != nil {
-		t.Fatalf("err = %v", err)
-	}
-
-	clean = func() {
-		err = db.Disconnect()
-		if err != nil {
-			t.Fatalf("err = %v", err)
-		}
-	}
-
-	return
-}
 
 func TestNewSession(t *testing.T) {
 	session_id := "test"
@@ -137,14 +95,5 @@ func TestSession_Partial(t *testing.T) {
 		if !reflect.DeepEqual(actual, test.Expected) {
 			t.Fatalf("partial session %v: actual session is not exactly the same as expected session\n actual: %v\n expected: %v\n update: %v", i+1, actual, test.Expected, test.Update)
 		}
-	}
-}
-
-func init() {
-	envDBUrl := os.Getenv("DBURL")
-	if len(envDBUrl) != 0 {
-		dbUrl = envDBUrl
-	} else {
-		dbUrl = defaultDBUrl
 	}
 }
