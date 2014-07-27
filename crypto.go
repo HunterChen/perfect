@@ -57,7 +57,7 @@ func GeneratePrivateKey() (private_key *PrivateKey, err error) {
 func GenerateKeyId() (id string, err error) {
 	//get the number of nanoseconds since the Epoch
 	t := time.Now().UnixNano()
-	b := make([]byte, 1)
+	b := make([]byte, 16)
 
 	//read random bytes
 	_, err = rand.Read(b)
