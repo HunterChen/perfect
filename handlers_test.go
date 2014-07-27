@@ -3,11 +3,11 @@ package perfect
 import (
 	"encoding/json"
 	"errors"
+	"github.com/vpetrov/perfect/orm"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
-    "github.com/vpetrov/perfect/orm"
 )
 
 func TestNotLoggedIn(t *testing.T) {
@@ -15,7 +15,7 @@ func TestNotLoggedIn(t *testing.T) {
 	request_method := "GET"
 	request_path := "/test"
 	query_string := "?arg1=val1"
-    session_id := "123ABC"
+	session_id := "123ABC"
 
 	session := NewSession(session_id)
 
