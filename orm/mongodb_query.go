@@ -9,10 +9,20 @@ type MongoDBQuery struct {
 	*mgo.Query
 }
 
-func (q *MongoDBQuery) One(result Record) error {
-	return q.Query.One(result)
+func (q *MongoDBQuery) One(result Record) (err error) {
+	err = q.Query.One(result)
+	if err == mgo.ErrNotFound {
+		err = ErrNotFound
+	}
+
+	return
 }
 
-func (q *MongoDBQuery) All(result []Record) error {
-	return q.Query.All(result)
+func (q *MongoDBQuery) All(result []Record) (err error) {
+	err = q.Query.All(result)
+	if err == mgo.ErrNotFound {
+		err = ErrNotFound
+	}
+
+	return
 }
