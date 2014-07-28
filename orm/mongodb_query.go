@@ -18,7 +18,8 @@ func (q *MongoDBQuery) One(result Record) (err error) {
 	return
 }
 
-func (q *MongoDBQuery) All(result []Record) (err error) {
+//TODO: write custom driver for mongodb so that 'result' could be of type []Record
+func (q *MongoDBQuery) All(result interface{}) (err error) {
 	err = q.Query.All(result)
 	if err == mgo.ErrNotFound {
 		err = ErrNotFound

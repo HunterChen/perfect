@@ -44,7 +44,7 @@ type Collection interface {
 type Query interface {
 	Count() (int, error)
 	One(Record) error
-	All([]Record) error
+	All(interface{}) error
 }
 
 //All DB drivers must implement a NewDatabaseDriver function
