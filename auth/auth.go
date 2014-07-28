@@ -62,7 +62,7 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 	//get the session
 	session, err := r.Session()
 	if err != nil {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 
 	if err != nil {
 		log.Println("login error:", err)
-		perfect.JSONResult(w, false, err.Error())
+		perfect.JSONResult(w, r, false, err.Error())
 		return
 	}
 
@@ -89,13 +89,13 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 	//regenerate the session Id
 	session.Id = orm.String(r.Module.Db.UniqueId())
 
-	//set the current user
-	session.UserId = profile_id
+	//set the current user profile id
+	session.ProfileId = profile_id
 
 	// update the session
 	err = r.Module.Db.Save(session)
 	if err != nil {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -110,7 +110,7 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 	})
 
 	//success
-	perfect.JSONResult(w, true, r.Module.MountPoint+"/")
+	perfect.JSONResult(w, r, true, r.Module.MountPoint+"/")
 }
 
 //Logs out a user.
@@ -120,7 +120,7 @@ func logout(w http.ResponseWriter, r *perfect.Request) {
 	session, err := r.Session()
 
 	if err != nil {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -131,7 +131,7 @@ func logout(w http.ResponseWriter, r *perfect.Request) {
 
 	err = r.Module.Db.Remove(session)
 	if err != nil && err != orm.ErrNotFound {
-		perfect.Error(w, err)
+		perfect.Error(w, r, err)
 		return
 	}
 
@@ -186,7 +186,7 @@ func Protect(handler perfect.RequestHandler) perfect.RequestHandler {
 		session, err := r.Session()
 
 		if err != nil {
-			perfect.Error(w, err)
+			perfect.Error(w, r, err)
 			return
 		}
 

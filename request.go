@@ -26,7 +26,7 @@ type Request struct {
 	URL     *url.URL
 	Module  *Module // the module that's handling the request
 	session *Session
-	user    *User
+	profile *Profile
 }
 
 // returns a new Request object
@@ -94,13 +94,13 @@ func (r *Request) SetSession(s *Session) {
 	r.session = s
 }
 
-//returns nil, nil if the user was not found
-func (r *Request) User() (*User, error) {
+//returns nil, nil if the profile was not found
+func (r *Request) Profile() (*Profile, error) {
 	var err error
 
-	//if a user already exists, return it
-	if r.user != nil {
-		return r.user, nil
+	//if a profile already exists, return it
+	if r.profile != nil {
+		return r.profile, nil
 	}
 
 	//get the current session
@@ -109,24 +109,24 @@ func (r *Request) User() (*User, error) {
 		return nil, err
 	}
 
-	//if there is no user id, return 'not found'
-	if session.UserId == nil {
+	//if there is no profile id, return 'not found'
+	if session.ProfileId == nil {
 		return nil, nil
 	}
 
-	//find the user by id (email)
+	//find the user profile by id (email)
 	db := r.Module.Db
-	user := &User{Id: session.UserId}
+	profile := &Profile{Id: session.ProfileId}
 
-	err = db.Find(user)
+	err = db.Find(profile)
 	if err == orm.ErrNotFound {
 		return nil, nil
 	}
 
-	//cache the user object
-	r.user = user
+	//cache the profile object
+	r.profile = profile
 
-	return r.user, nil
+	return r.profile, nil
 }
 
 // returns the value of the cookie by name

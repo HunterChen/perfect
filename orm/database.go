@@ -17,6 +17,7 @@ type Database interface {
 
 	C(string) Collection
 	GetCollectionName(r Record) string
+	DropCollection(Record) error
 
 	SetDebug(bool)
 	UniqueId() string

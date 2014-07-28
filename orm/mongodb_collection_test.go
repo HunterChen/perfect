@@ -343,13 +343,59 @@ func TestMongoDBCollection_NameOffline(t *testing.T) {
 }
 
 func TestMongoDBCollection_Drop(t *testing.T) {
+	var (
+		err      error
+		nrecords int
+		col_name string = "test"
+	)
+
+	countRecords := func(col Collection, t *testing.T) int {
+		n, err := col.Count()
+		if err != nil {
+			t.Fatalf("err = %v", err)
+		}
+
+		return n
+	}
+
 	db, clean := newTestMongoDB(t)
 	defer clean()
 
-	col := db.C("test")
-	err := col.Drop()
+	col := db.C(col_name)
+	err = col.Drop()
 	if err != nil {
 		t.Fatalf("Drop returned '%v', expected nil", err)
+	}
+
+	//make sure the collection is actually empty
+	nrecords = countRecords(col, t)
+	if nrecords != 0 {
+		t.Fatalf("Collection '%v' has %v records, expected %v", col_name, nrecords, 0)
+	}
+
+	//save a record into this collection
+	r := &mockRecord{}
+	err = col.Save(r)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//assert that there is now only 1 record in this collection
+	nrecords = countRecords(col, t)
+	if nrecords != 1 {
+		t.Fatalf("Collection '%v' has %v records, expected %v", col_name, nrecords, 1)
+	}
+
+	//drop the collection again
+	err = col.Drop()
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	//assert that there are 0 records in this collection now
+	nrecords = countRecords(col, t)
+	if nrecords != 0 {
+		t.Fatalf("Collection '%v', has %v records, expected %v", col_name, nrecords, 0)
 	}
 }
 

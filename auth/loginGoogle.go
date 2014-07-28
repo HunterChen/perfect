@@ -1,4 +1,5 @@
 package auth
+
 /*
 import (
 	"code.google.com/p/goauth2/oauth"
