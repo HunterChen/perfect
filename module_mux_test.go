@@ -15,13 +15,13 @@ func TestModuleMux(t *testing.T) {
 
 	response, err := http.Get(server.URL)
 	if err != nil {
-		t.Fatal("err = %v", err)
+		t.Fatalf("err = %v", err)
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	response.Body.Close()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("err = %v", err)
 	}
 
 	t.Logf("body = %s", body)
