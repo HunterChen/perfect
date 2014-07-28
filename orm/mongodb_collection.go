@@ -4,6 +4,7 @@ import (
 	"errors"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
+	"strings"
 )
 
 var bogusDropError string = "ns not found"
@@ -51,11 +52,17 @@ func (col *MongoDBCollection) Save(r Record) error {
 	if id == nil {
 		id = bson.NewObjectId()
 		r.SetDbId(id)
-		_, err = col.Collection.UpsertId(id, r)
+		err = col.Collection.Insert(r)
 	} else {
 		//update or insert a new object
 		r.SetDbId(nil)
 		_, err = col.Collection.UpsertId(id, bson.M{"$set": r})
+		//don't return an error if the user attempted to save an empty object
+		//the downside is that we can't insert an object if _id is set, we can
+		//only update the document based on the _id
+		if err != nil && strings.HasPrefix(err.Error(), "'$set' is empty") {
+			err = nil
+		}
 		r.SetDbId(id)
 	}
 

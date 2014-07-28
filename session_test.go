@@ -37,8 +37,24 @@ func TestSession_Partial(t *testing.T) {
 		Update, Expected *Session
 	}
 
+	db, clean := NewTestDatabase(dbUrl, t)
+	defer clean()
+
+	//create a sample Session
+	s := &Session{}
+
+	//clean the collection at the start and end of this test
+	db.DropCollection(s)
+	defer db.DropCollection(s)
+
+	//insert the first session
+	err := db.Save(s)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
 	var (
-		oid  orm.Object         = orm.Object{Id: 1}
+		oid  orm.Object         = s.Object
 		sid1 *string            = orm.String("1")
 		sid2 *string            = orm.String("2")
 		yes  *bool              = orm.Bool(true)
@@ -66,16 +82,9 @@ func TestSession_Partial(t *testing.T) {
 			{Update: &Session{Object: oid, Id: sid2}, Expected: &Session{Object: oid, Id: sid2, Authenticated: no, Values: val2}},
 			{Update: &Session{Object: oid, Authenticated: yes}, Expected: &Session{Object: oid, Id: sid2, Authenticated: yes, Values: val2}},
 			{Update: &Session{Object: oid, Values: val3}, Expected: &Session{Object: oid, Id: sid2, Authenticated: yes, Values: val3}},
-			{Update: &Session{Object: oid}, Expected: &Session{Object: oid, Id: sid2, Authenticated: yes, Values: val3}},
+			{Update: &Session{Object: oid, Id: sid1}, Expected: &Session{Object: oid, Id: sid1, Authenticated: yes, Values: val3}},
 		}
 	)
-
-	db, clean := NewTestDatabase(dbUrl, t)
-	defer clean()
-
-	//clean the collection at the start and end of this test
-	db.DropCollection(partial_session_updates[0].Update)
-	//defer db.DropCollection(partial_sessions[0])
 
 	for i, test := range partial_session_updates {
 		err := db.Save(test.Update)

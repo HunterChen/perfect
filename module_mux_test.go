@@ -7,28 +7,22 @@ import (
 	"testing"
 )
 
-func TestModule_Mux(t *testing.T) {
-	module := &Module{
-		Mux: NewMux(),
-	}
-
-	Modules.Mount(module, "/")
-
+func TestModuleMux(t *testing.T) {
+	m := &Module{Mux: NewMux()}
+	Modules.Mount(m, "/")
 	server := httptest.NewServer(Modules)
 	defer server.Close()
 
 	response, err := http.Get(server.URL)
 	if err != nil {
-		t.Fatalf("err = %v", err)
+		t.Fatal("err = %v", err)
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	response.Body.Close()
-
 	if err != nil {
-		t.Fatalf("err = %v", err)
+		t.Fatal(err)
 	}
 
 	t.Logf("body = %s", body)
-
 }
