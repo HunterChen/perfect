@@ -74,7 +74,7 @@ func (r *Request) Session() (*Session, error) {
 		//if the session was not found, create a new one
 		if err == orm.ErrNotFound {
 			session = NewSession(MD5Sum(db.UniqueId()))
-			err = db.Save(r.session)
+			err = db.Save(session)
 			if err != nil {
 				return nil, err
 			}
