@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestModuleMux(t *testing.T) {
+func TestModule_Mux(t *testing.T) {
 	module := &Module{
 		Mux: NewMux(),
 	}
