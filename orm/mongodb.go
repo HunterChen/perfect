@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"io"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"log"
@@ -188,4 +189,13 @@ func (db *MongoDB) Query(r Record) Query {
 	col := db.C(col_name)
 
 	return col.Query(r)
+}
+
+func (db *MongoDB) NewLogger(col, prefix string) (logger io.Writer) {
+	logger = &MongoDBLogger{
+		Col:    db.Database.C(col),
+		Prefix: prefix,
+	}
+
+	return
 }

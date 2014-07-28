@@ -2,6 +2,7 @@ package orm
 
 import (
 	"fmt"
+	"io"
 	"net/url"
 )
 
@@ -27,6 +28,8 @@ type Database interface {
 	Remove(Record) error
 
 	Query(Record) Query
+
+	NewLogger(col, prefix string) io.Writer
 }
 
 type Collection interface {
