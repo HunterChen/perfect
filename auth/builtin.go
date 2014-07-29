@@ -15,11 +15,11 @@ const (
 )
 
 type builtinUser struct {
-	orm.Object `bson:",inline,omitempty"`
-	Id         *string `bson:"id,omitempty"`
-	Password   *[]byte `bson:"password,omitempty"`
-	Salt       *string `bson:"salt,omitempty"`
-	UserId     *string `bson:"user_id,omitempty"`
+	orm.Object `bson:",inline,omitempty" json:"-"`
+	Id         *string `bson:"id,omitempty" json:"id,omitempty"`
+	Password   *[]byte `bson:"password,omitempty" json:"-"`
+	Salt       *string `bson:"salt,omitempty" json:"-"`
+	ProfileId  *string `bson:"profile_id,omitempty" json:"profile_id,omitempty"`
 }
 
 type BuiltinStrategy struct {
@@ -37,25 +37,23 @@ func NewBuiltinStrategy(config *Config) *BuiltinStrategy {
 }
 
 func (b *BuiltinStrategy) Attach(module *perfect.Module) {
-	app := module.Mux
-
-	app.Get("/login", perfect.NotLoggedIn(b.LoginPage))
-	app.Post("/login", perfect.NotLoggedIn(Login))
+	module.Get("/login", perfect.NotLoggedIn(b.LoginPage))
+	module.Post("/login", perfect.NotLoggedIn(Login))
 
 	//Registration is optional
 	if b.Config.AllowRegistration {
-		app.Get("/register", perfect.NotLoggedIn(b.RegistrationPage))
-		app.Post("/register", perfect.NotLoggedIn(b.Register))
+		module.Get("/register", perfect.NotLoggedIn(b.RegistrationPage))
+		module.Post("/register", perfect.NotLoggedIn(b.Register))
 	}
 
-	//setup the admin account
 	if len(b.Config.Username) != 0 {
-		_, _, err := createBuiltinProfile(b.Config.Username, b.Config.Password, b.Config.Name, b.Config.Email, module.Db)
-		if err != nil && err != ErrUsernameExists {
-			log.Fatalf("Failed to create admin profile: %v", err)
-		}
+		user, profile, err := b.setupAdminAccount(module.Db)
+		if err != nil {
 
-		log.Printf("Module administrator: username: %v email: %v\n", b.Config.Username, b.Config.Email)
+		}
+		log.Printf("Module administrator: username: %v email: %v\n", user.Id, profile.Id)
+	} else {
+		log.Printf("WARNING: No authentication details found for module '%v'", module.Name)
 	}
 }
 
@@ -109,7 +107,7 @@ func (b *BuiltinStrategy) Login(w http.ResponseWriter, r *perfect.Request) (prof
 		return
 	}
 
-	return user.UserId, nil
+	return user.ProfileId, nil
 }
 
 func (b *BuiltinStrategy) Register(w http.ResponseWriter, r *perfect.Request) {
@@ -190,10 +188,56 @@ func createBuiltinProfile(username, password, name, email string, db orm.Databas
 	//create an entry to store auth details
 	user.Password = &password_hash
 	user.Salt = &password_salt
-	user.UserId = profile.Id //TODO: change to ProfileId
+	user.ProfileId = profile.Id
 	err = db.Save(user)
 	if err != nil {
 		log.Println(err)
+		return
+	}
+
+	return user, profile, nil
+}
+
+func (b *BuiltinStrategy) setupAdminAccount(db orm.Database) (user *builtinUser, profile *perfect.Profile, err error) {
+
+	//setup the admin account
+	user = &builtinUser{Id: orm.String(b.Config.Username)}
+	err = db.Find(user)
+	if err != nil && err != orm.ErrNotFound {
+		return
+	}
+
+	profile = &perfect.Profile{}
+	//search for this profile
+	if user.ProfileId != nil {
+		profile.Id = user.ProfileId
+		err = db.Find(profile)
+		if err != nil && err != orm.ErrNotFound {
+			return
+		}
+	}
+
+	//update the profile
+	profile.Id = orm.String(b.Config.Email)
+	profile.Name = orm.String(b.Config.Name)
+	profile.AuthType = orm.String(b.Config.Type)
+	err = db.Save(profile)
+	if err != nil {
+		return
+	}
+
+	//hash the password
+	password_salt := generateRandomSalt(SALT_ENTROPY)
+	password_hash := hash(b.Config.Password, password_salt)
+	//update username
+	user = &builtinUser{
+		Object:    user.Object,
+		Password:  &password_hash,
+		Salt:      &password_salt,
+		ProfileId: profile.Id,
+	}
+	err = db.Save(user)
+	if err != nil {
 		return
 	}
 
