@@ -230,12 +230,9 @@ func (b *BuiltinStrategy) setupAdminAccount(db orm.Database) (user *builtinUser,
 	password_salt := generateRandomSalt(SALT_ENTROPY)
 	password_hash := hash(b.Config.Password, password_salt)
 	//update username
-	user = &builtinUser{
-		Object:    user.Object,
-		Password:  &password_hash,
-		Salt:      &password_salt,
-		ProfileId: profile.Id,
-	}
+	user.Password = &password_hash
+	user.Salt = &password_salt
+	user.ProfileId = profile.Id
 	err = db.Save(user)
 	if err != nil {
 		return
