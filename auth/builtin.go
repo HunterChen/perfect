@@ -55,7 +55,7 @@ func (b *BuiltinStrategy) Attach(module *perfect.Module) {
 			log.Fatalf("Failed to create admin profile: %v", err)
 		}
 
-		log.Printf("Module administrator: username: %v email: %v\n", *user.Id, *profile.Id)
+		log.Printf("Module administrator: username: %v email: %v\n", b.Config.Username, b.Config.Email)
 	}
 }
 
