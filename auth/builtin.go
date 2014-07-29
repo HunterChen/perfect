@@ -12,11 +12,6 @@ import (
 const (
 	SALT_ENTROPY             = 3
 	BERR_INVALID_CREDENTIALS = "Invalid username or password"
-
-	ADMIN_USERNAME = "admin"
-	ADMIN_PASSWORD = "admin"
-	ADMIN_NAME     = "Administrator"
-	ADMIN_EMAIL    = "root@localhost"
 )
 
 type builtinUser struct {
@@ -54,7 +49,14 @@ func (b *BuiltinStrategy) Attach(module *perfect.Module) {
 	}
 
 	//setup the admin account
-	setupAdminAccount(module)
+	if len(b.Config.Username) != 0 {
+		user, profile, err := createBuiltinProfile(b.Config.Username, b.Config.Password, b.Config.Name, b.Config.Email, module.Db)
+		if err != nil && err != ErrUsernameExists {
+			log.Fatalf("Failed to create admin profile: %v", err)
+		}
+
+		log.Println("Module administrator: username: %v email: %v", user.Id, profile.Id)
+	}
 }
 
 func (b *BuiltinStrategy) LoginPage(w http.ResponseWriter, r *perfect.Request) {
@@ -159,55 +161,6 @@ func (b *BuiltinStrategy) Logout(w http.ResponseWriter, r *perfect.Request) {
 	logout(w, r)
 }
 
-func setupAdminAccount(module *perfect.Module) {
-	var (
-		admin_user    *builtinUser
-		admin_profile *perfect.Profile
-		err           error
-		db            orm.Database = module.Db
-	)
-
-	admin_user = &builtinUser{Id: orm.String(ADMIN_USERNAME)}
-	err = db.Find(admin_user)
-	//if the user already exists or if there was an error, log the erorr and return
-	if err != orm.ErrNotFound {
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return
-	}
-
-	/* at this point, the user doesn't exist, so we'll create an admin profile and admin user */
-	//create profile
-	admin_profile = perfect.NewProfile(ADMIN_EMAIL, ADMIN_NAME)
-	admin_profile.AuthType = orm.String(BUILTIN)
-
-	//save the admin profile
-	err = db.Save(admin_profile)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	//create builtin user
-	password_salt := generateRandomSalt(SALT_ENTROPY)
-	password_hash := hash(ADMIN_PASSWORD, password_salt)
-	admin_user = &builtinUser{
-		Id:       orm.String(ADMIN_USERNAME),
-		Password: &password_hash,
-		Salt:     &password_salt,
-		UserId:   admin_profile.Id,
-	}
-
-	//save the admin user
-	err = db.Save(admin_user)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-}
-
 func createBuiltinProfile(username, password, name, email string, db orm.Database) (user *builtinUser, profile *perfect.Profile, err error) {
 	user = &builtinUser{Id: &username}
 
@@ -216,7 +169,7 @@ func createBuiltinProfile(username, password, name, email string, db orm.Databas
 	if err != orm.ErrNotFound {
 		//make sure users can't register duplicate usernames
 		if err == nil {
-			err = errors.New("This username already exists")
+			err = ErrUsernameExists
 		}
 		return
 	}

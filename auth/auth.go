@@ -30,6 +30,7 @@ var (
 	}
 
 	ErrInvalidUsernameOrPassword = errors.New("Invalid username or password")
+	ErrUsernameExists            = errors.New("Username already exists")
 )
 
 func New(config *Config) Strategy {
