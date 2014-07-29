@@ -50,7 +50,7 @@ func (b *BuiltinStrategy) Attach(module *perfect.Module) {
 
 	//setup the admin account
 	if len(b.Config.Username) != 0 {
-		user, profile, err := createBuiltinProfile(b.Config.Username, b.Config.Password, b.Config.Name, b.Config.Email, module.Db)
+		_, _, err := createBuiltinProfile(b.Config.Username, b.Config.Password, b.Config.Name, b.Config.Email, module.Db)
 		if err != nil && err != ErrUsernameExists {
 			log.Fatalf("Failed to create admin profile: %v", err)
 		}
