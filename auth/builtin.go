@@ -51,7 +51,7 @@ func (b *BuiltinStrategy) Attach(module *perfect.Module) {
 		if err != nil {
 
 		}
-		log.Printf("Module administrator: username: %v email: %v\n", user.Id, profile.Id)
+		log.Printf("Module administrator: username: %v email: %v\n", *user.Id, *profile.Id)
 	} else {
 		log.Printf("WARNING: No authentication details found for module '%v'", module.Name)
 	}
