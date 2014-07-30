@@ -111,8 +111,8 @@ func (mux *ModuleMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 			//set issue info as special headers
-			if len(response.IssueNumber) != 0 {
-				w.Header().Set("X-Survana-IssueNumber", response.IssueNumber)
+			if response.IssueNumber > 0 {
+				w.Header().Set("X-Survana-IssueNumber", string(response.IssueNumber))
 				w.Header().Set("X-Survana-IssueUrl", response.HtmlUrl)
 			}
 

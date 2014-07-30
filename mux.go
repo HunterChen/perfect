@@ -3,7 +3,6 @@ package perfect
 import (
 	"log"
 	"net/http"
-	"runtime/debug"
 	"strings"
 )
 
