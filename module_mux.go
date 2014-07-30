@@ -1,12 +1,19 @@
 package perfect
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
 )
+
+//TODO: remove this or make it configurable
+const GITHUB_URL = "https://api.github.com/repos/vpetrov/survana/issues?access_token=a8202d411154a49dab3a42b6e46fc51549ce651a"
 
 //decides which Module handles which Request
 type ModuleMux struct {
@@ -51,6 +58,68 @@ func (mux *ModuleMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//create an application-specific request object
 	request := NewRequest(r, rurl, module)
+
+	//report panics as issues on Github (with debug info)
+	defer func() {
+		if r_err := recover(); r_err != nil {
+
+			var error_string string
+
+			switch c := r_err.(type) {
+			case string:
+				error_string = c
+			case error:
+				error_string = c.Error()
+			default:
+				error_string = "unknown error object"
+			}
+
+			//convert the http request to a json string
+			json_request, err := json.MarshalIndent(request, "  ", "")
+			if err != nil {
+				log.Println("DEBUG: Failed to encode request as JSON:", err)
+				panic(r_err)
+			}
+			//create the report: error, stack, request
+			report := &GithubIssue{
+				Title:  "Automatic Panic Report (" + module.Name + ")",
+				Body:   error_string + "\n\n Stack:\n" + string(debug.Stack()) + "\n\n Request:\n" + string(json_request),
+				Labels: []string{"auto", "panic", module.Name},
+			}
+
+			//convert the report to JSON
+			json_report, err := json.Marshal(report)
+			buf := bytes.NewBuffer(json_report)
+			github_response, err := http.Post(GITHUB_URL, "application/json", buf)
+			if err != nil {
+				log.Println("DEBUG: Failed to create new GitHub issue:", err)
+				panic(r_err)
+			}
+
+			json_response, err := ioutil.ReadAll(github_response.Body)
+			if err != nil {
+				log.Println("DEBUG: Failed to read GitHub's response:", err)
+				panic(r_err)
+			}
+
+			response := &GithubResponse{}
+			//read Github's reply
+			err = json.Unmarshal(json_response, response)
+			if err != nil {
+				log.Println("DEBUG: Failed to read reply from Github:", err)
+				panic(r_err)
+			}
+
+			//set issue info as special headers
+			if len(response.IssueNumber) != 0 {
+				w.Header().Set("X-Survana-IssueNumber", response.IssueNumber)
+				w.Header().Set("X-Survana-IssueUrl", response.HtmlUrl)
+			}
+
+			//send the original error to the client
+			Error(w, request, r_err.(error))
+		}
+	}()
 
 	//route the request
 	module.Route(w, request)
