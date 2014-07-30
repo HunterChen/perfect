@@ -45,7 +45,7 @@ func (h *Mux) Route(w http.ResponseWriter, r *Request) {
 	//prepare the recovery
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Route handler panicked!")
+			log.Println("Route handler panicked!")
 			debug.PrintStack()
 		}
 	}()
