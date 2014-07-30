@@ -42,13 +42,6 @@ func (h *Mux) Route(w http.ResponseWriter, r *Request) {
 	name, file, line := HandlerInfo(handler)
 	log.Printf("%s %s%s -> %s at %s:%d\n", r.Method, r.Module.MountPoint, r.URL, name, file, line)
 
-	//prepare the recovery
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Route handler panicked!")
-			debug.PrintStack()
-		}
-	}()
 	//invoke the handler
 	handler(w, r)
 }
