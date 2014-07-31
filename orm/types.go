@@ -63,3 +63,7 @@ func Uint32(u uint32) *uint32 {
 func Uint64(u uint64) *uint64 {
 	return &u
 }
+
+func Is(b *bool) bool {
+	return b != nil && *b
+}

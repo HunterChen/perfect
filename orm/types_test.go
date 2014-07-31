@@ -227,3 +227,26 @@ func TestUint64(t *testing.T) {
 		t.Fatalf("uint64 value is %v, expected %v", *actual, expected)
 	}
 }
+
+func TestIs(t *testing.T) {
+
+	type testCase struct {
+		Value    *bool
+		Expected bool
+	}
+
+	test_cases := []testCase{
+		{Value: Bool(true), Expected: true},
+		{Value: Bool(false), Expected: false},
+		{Value: nil, Expected: false},
+	}
+
+	var actual bool
+
+	for i, test_case := range test_cases {
+		actual = Is(test_case.Value)
+		if actual != test_case.Expected {
+			t.Fatalf("Test case %v: orm.Is() returned '%v', expected '%v'", i, actual, test_case.Expected)
+		}
+	}
+}
