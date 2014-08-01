@@ -27,3 +27,26 @@ func (q *MongoDBQuery) All(result interface{}) (err error) {
 
 	return
 }
+
+func (q *MongoDBQuery) Select(fields ...string) Query {
+
+	var m = map[string]int{}
+	for _, v := range fields {
+		m[v] = 1
+	}
+
+	_ = q.Query.Select(m)
+
+	return q
+}
+
+func (q *MongoDBQuery) Exclude(fields ...string) Query {
+	var m = map[string]int{}
+	for _, v := range fields {
+		m[v] = 0
+	}
+
+	_ = q.Query.Select(m)
+
+	return q
+}

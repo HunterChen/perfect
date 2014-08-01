@@ -5,6 +5,7 @@ import (
 	"labix.org/v2/mgo/bson"
 	"log"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -655,5 +656,55 @@ func TestMongoDBCollection_QueryOffline(t *testing.T) {
 
 	if query != nil {
 		t.Fatalf("query is %v, expected nil", query)
+	}
+}
+
+func TestMongoDBCollection_Peek(t *testing.T) {
+	var err error
+
+	//setup
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	original := &mockUser{
+		Id:           String("abc123"),
+		Email:        String("user@example.com"),
+		Name:         String("John D'Oh"),
+		Organization: String("NSA"),
+		Age:          Int(32),
+		Address:      String("123 Golang Way, Mars City, 0000001, Mars, Planet Mars, Solar System"),
+		Tags:         &[]string{"user", "admin", "mars", "NSA"},
+	}
+
+	col := db.C("test")
+
+	err = col.Save(original)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	defer func() {
+		err = col.Remove(original)
+		if err != nil {
+			t.Fatalf("err = %v", err)
+		}
+	}()
+
+	//test
+	expected := &mockUser{
+		Object: original.Object,
+		Id:     original.Id,
+		Email:  original.Email,
+	}
+
+	actual := &mockUser{
+		Id:    original.Id,
+		Email: original.Email,
+	}
+
+	err = col.Peek(actual)
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("records are not equal:\nactual: %#v\nexpected: %#v\n", actual, expected)
 	}
 }

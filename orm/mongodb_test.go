@@ -3,6 +3,7 @@ package orm
 import (
 	"labix.org/v2/mgo"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -471,5 +472,49 @@ func TestMongoDB_DropCollection(t *testing.T) {
 	}
 	if nrecords != 0 {
 		t.Fatalf("Collection '%v' has %v records, expected exactly %v records instead", col_name, nrecords, 0)
+	}
+}
+
+func TestMongoDB_Peek(t *testing.T) {
+	var err error
+	db, clean := newTestMongoDB(t)
+	defer clean()
+
+	original := &mockUser{
+		Id:    String("abc123"),
+		Name:  String("Homer"),
+		Email: String("homer@example.com"),
+	}
+
+	err = db.Save(original)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	defer func() {
+		err = db.Remove(original)
+		if err != nil {
+			t.Fatalf("err = %v", err)
+		}
+	}()
+
+	expected := &mockUser{
+		Object: original.Object,
+		Id:     original.Id,
+		Email:  original.Email,
+	}
+
+	actual := &mockUser{
+		Id:    original.Id,
+		Email: original.Email,
+	}
+
+	err = db.Peek(actual)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("err = %v", err)
 	}
 }

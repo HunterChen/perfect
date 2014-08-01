@@ -199,3 +199,10 @@ func (db *MongoDB) NewLogger(col, prefix string) (logger io.Writer) {
 
 	return
 }
+
+func (db *MongoDB) Peek(r Record) error {
+	col_name := db.GetCollectionName(r)
+	col := db.C(col_name)
+
+	return col.Peek(r)
+}

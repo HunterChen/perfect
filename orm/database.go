@@ -25,6 +25,7 @@ type Database interface {
 
 	Save(Record) error
 	Find(Record) error
+	Peek(Record) error
 	Remove(Record) error
 
 	Query(Record) Query
@@ -39,6 +40,7 @@ type Collection interface {
 
 	Save(Record) error
 	Find(Record) error
+	Peek(Record) error
 	Remove(Record) error
 
 	Query(interface{}) Query
@@ -47,6 +49,8 @@ type Collection interface {
 type Query interface {
 	Count() (int, error)
 	One(Record) error
+	Select(...string) Query
+	Exclude(...string) Query
 	All(interface{}) error
 }
 

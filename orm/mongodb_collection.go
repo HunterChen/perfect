@@ -105,3 +105,22 @@ func (col *MongoDBCollection) Query(q interface{}) Query {
 		col.Collection.Find(q),
 	}
 }
+
+func (col *MongoDBCollection) Peek(r Record) (err error) {
+	if col.Collection == nil {
+		return nil
+	}
+
+	//mgo will overwrite all fields of 'r' with nil, because they're not going
+	//to be returned by the database. The workaround is to store the result in
+	//a temporary 'obj' variable and then copy the Id into 'r'
+	obj := &Object{}
+
+	err = col.Query(r).Select("_id").One(obj)
+	if err != nil {
+		return
+	}
+
+	r.SetDbId(obj.Id)
+	return
+}
