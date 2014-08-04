@@ -493,6 +493,11 @@ func (d *decodeState) object(v reflect.Value) {
 	}
 
 	var mapElem reflect.Value
+	var fields []field
+
+	if v.Kind() == reflect.Struct {
+		fields = cachedTypeFields(v.Type())
+	}
 
 	for {
 		// Read opening " of string key or closing }.
@@ -528,7 +533,6 @@ func (d *decodeState) object(v reflect.Value) {
 			subv = mapElem
 		} else {
 			var f *field
-			fields := cachedTypeFields(v.Type())
 			for i := range fields {
 				ff := &fields[i]
 				if bytes.Equal(ff.nameBytes, key) {
