@@ -2,6 +2,7 @@ package perfect
 
 import (
 	"github.com/vpetrov/perfect/orm"
+	ormtest "github.com/vpetrov/perfect/orm/test"
 	"reflect"
 	"testing"
 )
@@ -37,7 +38,7 @@ func TestSession_Partial(t *testing.T) {
 		Update, Expected *Session
 	}
 
-	db, clean := NewTestDatabase(dbUrl, t)
+	db, clean := ormtest.NewTestDatabase(ormtest.DbUrl, t)
 	defer clean()
 
 	//create a sample Session

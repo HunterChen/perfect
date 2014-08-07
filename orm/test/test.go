@@ -1,4 +1,4 @@
-package perfect
+package ormtest
 
 import (
 	"github.com/vpetrov/perfect/orm"
@@ -12,7 +12,7 @@ const (
 	defaultDBUrl  = "mongodb://localhost/" + defaultDBName
 )
 
-var dbUrl string
+var DbUrl string
 
 func NewTestDatabase(dburl string, t *testing.T) (db orm.Database, clean func()) {
 	u, err := url.Parse(dburl)
@@ -43,8 +43,8 @@ func NewTestDatabase(dburl string, t *testing.T) (db orm.Database, clean func())
 func init() {
 	envDBUrl := os.Getenv("DBURL")
 	if len(envDBUrl) != 0 {
-		dbUrl = envDBUrl
+		DbUrl = envDBUrl
 	} else {
-		dbUrl = defaultDBUrl
+		DbUrl = defaultDBUrl
 	}
 }

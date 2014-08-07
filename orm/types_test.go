@@ -2,6 +2,7 @@ package orm
 
 import (
 	"testing"
+	"time"
 )
 
 func TestString(t *testing.T) {
@@ -164,7 +165,7 @@ func TestUint(t *testing.T) {
 	actual := Uint(expected)
 
 	if actual == nil {
-		t.Fatalf("uint pouinter is nil, expected non-nil")
+		t.Fatalf("uint pointer is nil, expected non-nil")
 	}
 
 	if *actual != expected {
@@ -178,7 +179,7 @@ func TestUint8(t *testing.T) {
 	actual := Uint8(expected)
 
 	if actual == nil {
-		t.Fatalf("uint8 pouinter is nil, expected non-nil")
+		t.Fatalf("uint8 pointer is nil, expected non-nil")
 	}
 
 	if *actual != expected {
@@ -192,7 +193,7 @@ func TestUint16(t *testing.T) {
 	actual := Uint16(expected)
 
 	if actual == nil {
-		t.Fatalf("uint16 pouinter is nil, expected non-nil")
+		t.Fatalf("uint16 pointer is nil, expected non-nil")
 	}
 
 	if *actual != expected {
@@ -206,7 +207,7 @@ func TestUint32(t *testing.T) {
 	actual := Uint32(expected)
 
 	if actual == nil {
-		t.Fatalf("uint32 pouinter is nil, expected non-nil")
+		t.Fatalf("uint32 pointer is nil, expected non-nil")
 	}
 
 	if *actual != expected {
@@ -220,7 +221,7 @@ func TestUint64(t *testing.T) {
 	actual := Uint64(expected)
 
 	if actual == nil {
-		t.Fatalf("uint64 pouinter is nil, expected non-nil")
+		t.Fatalf("uint64 pointer is nil, expected non-nil")
 	}
 
 	if *actual != expected {
@@ -248,5 +249,35 @@ func TestIs(t *testing.T) {
 		if actual != test_case.Expected {
 			t.Fatalf("Test case %v: orm.Is() returned '%v', expected '%v'", i, actual, test_case.Expected)
 		}
+	}
+}
+
+func TestTime(t *testing.T) {
+	var expected = time.Now()
+	actual := Time(expected)
+
+	if actual == nil {
+		t.Fatalf("time.Time pointer is nil, expected non-nil")
+	}
+
+	if *actual != expected {
+		t.Fatalf("time.Time value is %vm expected %v", *actual, expected)
+	}
+}
+
+func TestDuration(t *testing.T) {
+	expected, err := time.ParseDuration("1000ms")
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	actual := Duration(expected)
+
+	if actual == nil {
+		t.Fatalf("time.Duration pointer is nil, expected non-nil")
+	}
+
+	if *actual != expected {
+		t.Fatalf("time.Duration value is %vm expected %v", *actual, expected)
 	}
 }

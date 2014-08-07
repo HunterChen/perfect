@@ -1,5 +1,9 @@
 package orm
 
+import (
+	"time"
+)
+
 func String(s string) *string {
 	return &s
 }
@@ -66,4 +70,12 @@ func Uint64(u uint64) *uint64 {
 
 func Is(b *bool) bool {
 	return b != nil && *b
+}
+
+func Time(t time.Time) *time.Time {
+	return &t
+}
+
+func Duration(d time.Duration) *time.Duration {
+	return &d
 }
