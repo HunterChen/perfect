@@ -1,12 +1,12 @@
 package perfect
 
 import (
-	"bytes"
-	"encoding/json"
-	"io/ioutil"
+	//"bytes"
+	//"encoding/json"
+	//"io/ioutil"
 	"log"
 	"net/http"
-	"runtime/debug"
+	//"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -60,7 +60,7 @@ func (mux *ModuleMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	request := NewRequest(r, rurl, module)
 
 	//report panics as issues on Github (with debug info)
-	defer func() {
+	/*defer func() {
 		if r_err := recover(); r_err != nil {
 
 			var error_string string
@@ -119,7 +119,7 @@ func (mux *ModuleMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			//send the original error to the client
 			Error(w, request, r_err.(error))
 		}
-	}()
+	}()*/
 
 	//route the request
 	module.Route(w, request)
