@@ -1,7 +1,7 @@
 package perfect
 
 import (
-	"encoding/json"
+	"github.com/vpetrov/perfect/json"
 	"github.com/vpetrov/perfect/orm"
 	"io"
 	"io/ioutil"
