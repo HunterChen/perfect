@@ -17,10 +17,6 @@ const (
 	TEMPLATE_EXT = ".html"
 )
 
-var (
-	SESSION_TIMEOUT time.Duration = time.Hour
-)
-
 //A Perfect Module is a standalone component that can be mounted on
 //URL paths and can decide how requests are routed.
 type Module struct {

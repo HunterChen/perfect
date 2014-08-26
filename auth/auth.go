@@ -9,7 +9,6 @@ import (
 	"github.com/vpetrov/perfect/orm"
 	"log"
 	"net/http"
-	"time"
 )
 
 //authentication strategy keys
@@ -100,15 +99,7 @@ func Login(w http.ResponseWriter, r *perfect.Request) {
 		return
 	}
 
-	//set the cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     perfect.SESSION_ID,
-		Value:    *session.Id,
-		Path:     r.Module.MountPoint,
-		Expires:  time.Now().Add(perfect.SESSION_TIMEOUT),
-		Secure:   true,
-		HttpOnly: true,
-	})
+	session.SetCookie(w, r)
 
 	//success
 	perfect.JSONResult(w, r, true, r.Module.MountPoint+"/")
@@ -136,16 +127,7 @@ func logout(w http.ResponseWriter, r *perfect.Request) {
 		return
 	}
 
-	//To delete the cookie, we set its value to some bogus string,
-	//and the expiration to one second past the beginning of unix time.
-	http.SetCookie(w, &http.Cookie{
-		Name:     perfect.SESSION_ID,
-		Value:    "Homer",
-		Path:     r.Module.MountPoint,
-		Expires:  time.Unix(1, 0),
-		Secure:   true,
-		HttpOnly: true,
-	})
+	session.RemoveCookie(w, r)
 
 	//return 204 No Content on success
 	perfect.Redirect(w, r, "/")
@@ -204,6 +186,9 @@ func Protect(handler perfect.RequestHandler) perfect.RequestHandler {
 
 			perfect.Redirect(w, r, redirect_path)
 			return
+		} else {
+			//extend the amount of time the session is valid
+			session.ExtendCookie(w, r)
 		}
 
 		//must be authenticated at this point
