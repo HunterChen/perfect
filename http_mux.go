@@ -6,29 +6,29 @@ import (
 	"strings"
 )
 
-//a map of module-relative paths to their handlers
+//a map of module-relative paths to their Handlers
 type RouteHandlers map[string]RequestHandler
 
 // This Request Mux does not use a mutex because we're not anticipating the need
 // to change the routes at run time, as requests are served.
 // Even if modules are re-mounted, they should be first instantiated,
 // then enabled. Should this change, an RWMutex will be necessary.
-type Mux struct {
-	handlers       map[string]RouteHandlers
-	staticPrefix   string
+type HTTPMux struct {
+	Handlers       map[string]RouteHandlers
+	StaticPrefix   string
 	HasStaticFiles bool
 }
 
 //returns a new Mux
-func NewMux() *Mux {
+func NewHTTPMu() *Mux {
 	return &Mux{
-		handlers:       make(map[string]RouteHandlers, 0),
-		staticPrefix:   "",
+		Handlers:       make(map[string]RouteHandlers, 0),
+		StaticPrefix:   "",
 		HasStaticFiles: false,
 	}
 }
 
-// finds and invokes the handlers for the given request
+// finds and invokes the Handlers for the given request
 func (h *Mux) Route(w http.ResponseWriter, r *Request) {
 	handler := h.FindHandler(r)
 
@@ -47,20 +47,20 @@ func (h *Mux) Route(w http.ResponseWriter, r *Request) {
 
 //checks whether a request is for a static resource
 func (h *Mux) isStatic(r *Request) bool {
-	return h.HasStaticFiles && strings.HasPrefix(r.URL.Path, h.staticPrefix)
+	return h.HasStaticFiles && strings.HasPrefix(r.URL.Path, h.StaticPrefix)
 }
 
 //generic method that registers a handler for a path and http method
 func (h *Mux) Handle(method string, path string, handler RequestHandler) {
 
-	handlers, ok := h.handlers[method]
+	Handlers, ok := h.Handlers[method]
 
 	if !ok {
-		h.handlers[method] = make(RouteHandlers, 0)
-		handlers = h.handlers[method]
+		h.Handlers[method] = make(RouteHandlers, 0)
+		Handlers = h.Handlers[method]
 	}
 
-	handlers[path] = handler
+	Handlers[path] = handler
 
 	log.Println("[mux]", method, path, handler)
 }
@@ -71,7 +71,7 @@ func (h *Mux) Static(path string) {
 		path += "/"
 	}
 
-	h.staticPrefix = path
+	h.StaticPrefix = path
 	h.HasStaticFiles = true
 }
 
@@ -115,7 +115,7 @@ func (h *Mux) FindHandler(r *Request) RequestHandler {
 	}
 
 	//GET, POST, PUT
-	route_handler, ok := h.handlers[r.Request.Method]
+	route_handler, ok := h.Handlers[r.Request.Method]
 
 	if !ok {
 		return nil
