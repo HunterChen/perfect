@@ -9,7 +9,7 @@ import (
 
 func TestModule_Mux(t *testing.T) {
 	module := &Module{
-		Mux: NewMux(),
+		Mux: NewHTTPMux(),
 	}
 
 	Modules.Mount(module, "/")

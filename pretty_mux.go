@@ -5,12 +5,12 @@ import (
 )
 
 type PrettyMux struct {
-	*Mux
+	*HTTPMux
 }
 
 func NewPrettyMux() *PrettyMux {
 	return &PrettyMux{
-		Mux: NewMux(),
+		HTTPMux: NewHTTPMux(),
 	}
 }
 

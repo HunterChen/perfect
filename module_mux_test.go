@@ -8,7 +8,7 @@ import (
 )
 
 func TestModuleMux(t *testing.T) {
-	m := &Module{Mux: NewMux()}
+	m := &Module{Mux: NewHTTPMux()}
 	Modules.Mount(m, "/")
 	server := httptest.NewServer(Modules)
 	defer server.Close()

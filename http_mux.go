@@ -20,8 +20,8 @@ type HTTPMux struct {
 }
 
 //returns a new Mux
-func NewHTTPMu() *Mux {
-	return &Mux{
+func NewHTTPMux() *HTTPMux {
+	return &HTTPMux{
 		Handlers:       make(map[string]RouteHandlers, 0),
 		StaticPrefix:   "",
 		HasStaticFiles: false,
@@ -29,7 +29,7 @@ func NewHTTPMu() *Mux {
 }
 
 // finds and invokes the Handlers for the given request
-func (h *Mux) Route(w http.ResponseWriter, r *Request) {
+func (h *HTTPMux) Route(w http.ResponseWriter, r *Request) {
 	handler := h.FindHandler(r)
 
 	if handler == nil {
@@ -46,12 +46,12 @@ func (h *Mux) Route(w http.ResponseWriter, r *Request) {
 }
 
 //checks whether a request is for a static resource
-func (h *Mux) isStatic(r *Request) bool {
+func (h *HTTPMux) isStatic(r *Request) bool {
 	return h.HasStaticFiles && strings.HasPrefix(r.URL.Path, h.StaticPrefix)
 }
 
 //generic method that registers a handler for a path and http method
-func (h *Mux) Handle(method string, path string, handler RequestHandler) {
+func (h *HTTPMux) Handle(method string, path string, handler RequestHandler) {
 
 	Handlers, ok := h.Handlers[method]
 
@@ -66,7 +66,7 @@ func (h *Mux) Handle(method string, path string, handler RequestHandler) {
 }
 
 //sets the static path
-func (h *Mux) Static(path string) {
+func (h *HTTPMux) Static(path string) {
 	if path[len(path)-1:] != "/" {
 		path += "/"
 	}
@@ -76,37 +76,37 @@ func (h *Mux) Static(path string) {
 }
 
 //a request handler for static resources
-func (h *Mux) StaticHandler(w http.ResponseWriter, r *Request) {
+func (h *HTTPMux) StaticHandler(w http.ResponseWriter, r *Request) {
 	http.ServeFile(w, r.Request, r.Module.Path+r.URL.Path)
 }
 
 //registers a GET request handler
-func (h *Mux) Get(path string, handler RequestHandler) {
+func (h *HTTPMux) Get(path string, handler RequestHandler) {
 	h.Handle("GET", path, handler)
 }
 
 //registers a POST request handler
-func (h *Mux) Post(path string, handler RequestHandler) {
+func (h *HTTPMux) Post(path string, handler RequestHandler) {
 	h.Handle("POST", path, handler)
 }
 
 //registers a PUT request handler
-func (h *Mux) Put(path string, handler RequestHandler) {
+func (h *HTTPMux) Put(path string, handler RequestHandler) {
 	h.Handle("PUT", path, handler)
 }
 
 //registers a DELETE request handler
-func (h *Mux) Delete(path string, handler RequestHandler) {
+func (h *HTTPMux) Delete(path string, handler RequestHandler) {
 	h.Handle("DELETE", path, handler)
 }
 
 //registers a HEAD request handler
-func (h *Mux) Head(path string, handler RequestHandler) {
+func (h *HTTPMux) Head(path string, handler RequestHandler) {
 	h.Handle("HEAD", path, handler)
 }
 
 //returns a static/dynamic request handler for the given request
-func (h *Mux) FindHandler(r *Request) RequestHandler {
+func (h *HTTPMux) FindHandler(r *Request) RequestHandler {
 
 	//if the request is for a static resource, return the
 	//static request handler

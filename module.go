@@ -20,7 +20,7 @@ const (
 //A Perfect Module is a standalone component that can be mounted on
 //URL paths and can decide how requests are routed.
 type Module struct {
-	*Mux
+	Mux
 	Name           string
 	MountPoint     string
 	Path           string
