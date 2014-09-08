@@ -8,4 +8,6 @@ type Mux interface {
 	Put(path string, handler RequestHandler)
 	Delete(path string, handler RequestHandler)
 	Head(path string, handler RequestHandler)
+
+	Static(path string)
 }
