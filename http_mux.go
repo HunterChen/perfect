@@ -6,15 +6,12 @@ import (
 	"strings"
 )
 
-//a map of module-relative paths to their Handlers
-type RouteHandlers map[string]RequestHandler
-
 // This Request Mux does not use a mutex because we're not anticipating the need
 // to change the routes at run time, as requests are served.
 // Even if modules are re-mounted, they should be first instantiated,
 // then enabled. Should this change, an RWMutex will be necessary.
 type HTTPMux struct {
-	Handlers       map[string]RouteHandlers
+	Handlers       map[string]routeHandlers
 	StaticPrefix   string
 	HasStaticFiles bool
 }
@@ -22,7 +19,7 @@ type HTTPMux struct {
 //returns a new Mux
 func NewHTTPMux() *HTTPMux {
 	return &HTTPMux{
-		Handlers:       make(map[string]RouteHandlers, 0),
+		Handlers:       make(map[string]routeHandlers, 0),
 		StaticPrefix:   "",
 		HasStaticFiles: false,
 	}
@@ -56,7 +53,7 @@ func (h *HTTPMux) Handle(method string, path string, handler RequestHandler) {
 	Handlers, ok := h.Handlers[method]
 
 	if !ok {
-		h.Handlers[method] = make(RouteHandlers, 0)
+		h.Handlers[method] = make(routeHandlers, 0)
 		Handlers = h.Handlers[method]
 	}
 

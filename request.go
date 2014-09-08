@@ -18,6 +18,9 @@ type Router interface {
 //An HTTP request to a Survana component.
 type RequestHandler func(http.ResponseWriter, *Request)
 
+//a map of module-relative paths to their Handlers
+type routeHandlers map[string]RequestHandler
+
 //A struct that wraps http.Request and provides additional fields for all
 //RequestHandlers to use. All methods from http.Request should be promoted
 //for use with survana.Request.
@@ -27,10 +30,12 @@ type Request struct {
 	Module  *Module // the module that's handling the request
 	session *Session
 	profile *Profile
+	Values  url.Values
 }
 
 // returns a new Request object
 func NewRequest(r *http.Request, path string, module *Module) *Request {
+
 	rurl := &url.URL{
 		Scheme:   r.URL.Scheme,
 		Opaque:   r.URL.Opaque,
@@ -41,11 +46,20 @@ func NewRequest(r *http.Request, path string, module *Module) *Request {
 		Fragment: r.URL.Fragment,
 	}
 
-	return &Request{
+	req := &Request{
 		Request: r,
 		URL:     rurl,
 		Module:  module,
 	}
+
+	if len(r.URL.RawQuery) != 0 {
+		//parse query parameters, ignore any erorrs
+		req.Values, _ = url.ParseQuery(r.URL.RawQuery)
+	} else {
+		req.Values = make(map[string][]string, 0)
+	}
+
+	return req
 }
 
 // returns either an existing session, or a new session
