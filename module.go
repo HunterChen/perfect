@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -32,6 +33,18 @@ type Module struct {
 	Templates *template.Template
 }
 
+func (m *Module) abs(p string) string {
+	return m.MountPoint + p
+}
+
+func (m *Module) asset(p string) string {
+	return m.MountPoint + m.StaticPrefix() + p
+}
+
+func (m *Module) _string(i int) string {
+	return strconv.Itoa(i)
+}
+
 //parses all template files from the 'templates' folder of the module
 func (m *Module) ParseTemplates() error {
 
@@ -44,6 +57,12 @@ func (m *Module) ParseTemplates() error {
 	pathlen := len(m.Path)
 	tpldirlen := len(TEMPLATE_DIR)
 	tplextlen := len(TEMPLATE_EXT)
+
+	moduleFuncs := map[string]interface{}{
+		"abs":    m.abs,
+		"asset":  m.asset,
+		"string": m._string,
+	}
 
 	tplParser := func(currentPath string, info os.FileInfo, err error) error {
 		if !info.IsDir() && filepath.Ext(currentPath) == TEMPLATE_EXT {
@@ -59,10 +78,12 @@ func (m *Module) ParseTemplates() error {
 				return err
 			}
 
-			_, err = m.Templates.New(requestPath).Parse(string(data))
+			t, err := m.Templates.New(requestPath).Parse(string(data))
 			if err != nil {
 				return err
 			}
+
+			t.Funcs(moduleFuncs)
 		}
 
 		return nil
@@ -82,9 +103,8 @@ func (m *Module) RenderTemplate(w http.ResponseWriter, r *Request, path string, 
 	}
 
 	err := tpl.Execute(w, data)
-
 	if err != nil {
-		Error(w, r, err)
+		LogError(r, err)
 		return
 	}
 }

@@ -12,7 +12,7 @@ import (
 // then enabled. Should this change, an RWMutex will be necessary.
 type HTTPMux struct {
 	Handlers       map[string]routeHandlers
-	StaticPrefix   string
+	staticPrefix   string
 	HasStaticFiles bool
 }
 
@@ -20,7 +20,7 @@ type HTTPMux struct {
 func NewHTTPMux() *HTTPMux {
 	return &HTTPMux{
 		Handlers:       make(map[string]routeHandlers, 0),
-		StaticPrefix:   "",
+		staticPrefix:   "",
 		HasStaticFiles: false,
 	}
 }
@@ -44,7 +44,7 @@ func (h *HTTPMux) Route(w http.ResponseWriter, r *Request) {
 
 //checks whether a request is for a static resource
 func (h *HTTPMux) isStatic(r *Request) bool {
-	return h.HasStaticFiles && strings.HasPrefix(r.URL.Path, h.StaticPrefix)
+	return h.HasStaticFiles && strings.HasPrefix(r.URL.Path, h.staticPrefix)
 }
 
 //generic method that registers a handler for a path and http method
@@ -68,7 +68,7 @@ func (h *HTTPMux) Static(path string) {
 		path += "/"
 	}
 
-	h.StaticPrefix = path
+	h.staticPrefix = path
 	h.HasStaticFiles = true
 }
 
@@ -126,4 +126,8 @@ func (h *HTTPMux) FindHandler(r *Request) RequestHandler {
 	}
 
 	return handler
+}
+
+func (h *HTTPMux) StaticPrefix() string {
+	return h.staticPrefix
 }

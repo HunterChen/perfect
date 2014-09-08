@@ -2,6 +2,7 @@ package perfect
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"reflect"
 	"runtime"
@@ -42,8 +43,20 @@ func NoContent(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func LogError(r *Request, err error) {
+	info := debug.Stack()
+	_, file, line, _ := runtime.Caller(1)
+	//log the error
+	if r.Module.Log != nil {
+		r.Module.Log.Printf("ERROR:%s:%d: %s\n%s", file, line, err, info)
+	}
+
+	log.Printf("ERROR:%s:%d: %s\n%s", file, line, err, info)
+}
+
 //returns 500 Internal Server Error, and prints the error to the server log
 func Error(w http.ResponseWriter, r *Request, err error) {
+	log.Printf("header=%#v\n", w.Header())
 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 
 	//log the error

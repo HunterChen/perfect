@@ -43,7 +43,7 @@ func (r *prettyRoute) Match(path_elements []string) (bool, *url.Values) {
 }
 
 type PrettyMux struct {
-	StaticPrefix   string
+	staticPrefix   string
 	hasStaticFiles bool
 
 	//map [HTTP_METHOD] list of pretty routes
@@ -141,7 +141,7 @@ func (pm *PrettyMux) FindHandler(r *Request) RequestHandler {
 
 //checks whether a request is for a static resource
 func (pm *PrettyMux) isStatic(r *Request) bool {
-	return pm.hasStaticFiles && strings.HasPrefix(r.URL.Path, pm.StaticPrefix)
+	return pm.hasStaticFiles && strings.HasPrefix(r.URL.Path, pm.staticPrefix)
 }
 
 //a request handler for static resources
@@ -172,6 +172,10 @@ func (pm *PrettyMux) Static(path string) {
 		path += "/"
 	}
 
-	pm.StaticPrefix = path
+	pm.staticPrefix = path
 	pm.hasStaticFiles = true
+}
+
+func (pm *PrettyMux) StaticPrefix() string {
+	return pm.staticPrefix
 }

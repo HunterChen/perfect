@@ -10,4 +10,5 @@ type Mux interface {
 	Head(path string, handler RequestHandler)
 
 	Static(path string)
+	StaticPrefix() string
 }
