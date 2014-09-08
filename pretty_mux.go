@@ -148,3 +148,30 @@ func (pm *PrettyMux) isStatic(r *Request) bool {
 func (pm *PrettyMux) StaticHandler(w http.ResponseWriter, r *Request) {
 	http.ServeFile(w, r.Request, r.Module.Path+r.URL.Path)
 }
+
+// finds and invokes the Handlers for the given request
+func (pm *PrettyMux) Route(w http.ResponseWriter, r *Request) {
+	handler := pm.FindHandler(r)
+
+	if handler == nil {
+		http.NotFound(w, r.Request)
+		return
+	}
+
+	//TODO: remove these 2 lines when optimizing performance
+	name, file, line := HandlerInfo(handler)
+	log.Printf("%s %s%s -> %s at %s:%d\n", r.Method, r.Module.MountPoint, r.URL, name, file, line)
+
+	//invoke the handler
+	handler(w, r)
+}
+
+//sets the static path
+func (pm *PrettyMux) Static(path string) {
+	if path[len(path)-1:] != "/" {
+		path += "/"
+	}
+
+	pm.StaticPrefix = path
+	pm.hasStaticFiles = true
+}

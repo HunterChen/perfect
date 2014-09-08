@@ -31,6 +31,12 @@ var (
 	}
 )
 
+func TestPrettyMux(t *testing.T) {
+	_ = Module{
+		Mux: NewPrettyMux(),
+	}
+}
+
 func TestPrettyMux_FindHandler(t *testing.T) {
 	var (
 		called bool
