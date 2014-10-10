@@ -6,22 +6,31 @@ import (
 )
 
 func TestNewPrivateKey(t *testing.T) {
-	key := NewPrivateKey()
+	key_types := []int{EC_P521, EC_P384}
 
-	//only EC_P521 is supported
-	if key.Type != EC_P521 {
-		t.Errorf("key.Type = %v, expected %v (EC_P521)", key.Type, EC_P521)
+	for _, kt := range key_types {
+		key := NewPrivateKey(kt)
+
+		if key.Type != kt {
+			t.Errorf("key.Type = %v, expected %v", key.Type, kt)
+		}
 	}
 }
 
-func BenchmarkNewPrivateKey(b *testing.B) {
+func BenchmarkNewPrivateKey_P521(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = NewPrivateKey()
+		_ = NewPrivateKey(EC_P521)
+	}
+}
+
+func BenchmarkNewPrivateKey_P384(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = NewPrivateKey(EC_P384)
 	}
 }
 
 func TestGeneratePrivateKey(t *testing.T) {
-	key, err := GeneratePrivateKey()
+	key, err := GeneratePrivateKey(EC_P521)
 
 	if err != nil {
 		t.Errorf("err = %v", err)
@@ -46,9 +55,15 @@ func TestGeneratePrivateKey(t *testing.T) {
 	}
 }
 
-func BenchmarkGeneratePrivateKey(b *testing.B) {
+func BenchmarkGeneratePrivateKey_P521(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, _ = GeneratePrivateKey()
+		_, _ = GeneratePrivateKey(EC_P521)
+	}
+}
+
+func BenchmarkGeneratePrivateKey_P384(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = GeneratePrivateKey(EC_P384)
 	}
 }
 
@@ -85,7 +100,7 @@ func BenchmarkGenerateKeyId(b *testing.B) {
 }
 
 func TestMarshalJSON(t *testing.T) {
-	key, err := GeneratePrivateKey()
+	key, err := GeneratePrivateKey(EC_P521)
 
 	if err != nil {
 		t.Errorf("err = %v", err)
@@ -107,7 +122,7 @@ func TestMarshalJSON(t *testing.T) {
 }
 
 func BenchmarkMarshalJSON(b *testing.B) {
-	key, err := GeneratePrivateKey()
+	key, err := GeneratePrivateKey(EC_P521)
 
 	if err != nil {
 		b.Errorf("err = %v", err)
@@ -120,7 +135,7 @@ func BenchmarkMarshalJSON(b *testing.B) {
 }
 
 func TestUnmarshalJSON(t *testing.T) {
-	key, err := GeneratePrivateKey()
+	key, err := GeneratePrivateKey(EC_P521)
 	if err != nil {
 		t.Errorf("err = %v", err)
 	}
@@ -130,7 +145,7 @@ func TestUnmarshalJSON(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 
-	key2 := NewPrivateKey()
+	key2 := NewPrivateKey(EC_P521)
 	err = key2.UnmarshalJSON(keydata)
 
 	if key2.Id != key.Id {
@@ -155,7 +170,7 @@ func TestUnmarshalJSON(t *testing.T) {
 }
 
 func BenchmarkUnmarshalJSON(b *testing.B) {
-	key, err := GeneratePrivateKey()
+	key, err := GeneratePrivateKey(EC_P521)
 	if err != nil {
 		b.Errorf("err = %v", err)
 	}
@@ -165,7 +180,7 @@ func BenchmarkUnmarshalJSON(b *testing.B) {
 		b.Errorf("err = %v", err)
 	}
 
-	key2 := NewPrivateKey()
+	key2 := NewPrivateKey(EC_P521)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -180,5 +195,4 @@ func TestMD5Sum(t *testing.T) {
 	if actual != expected {
 		t.Fatalf("actual md5 is '%v', expected '%v' for string: '%v'", actual, expected, s)
 	}
-
 }
