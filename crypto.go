@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"labix.org/v2/mgo/bson"
 	"math/big"
 	"time"
 )
@@ -102,6 +103,19 @@ func (key *PrivateKey) MarshalJSON() (data []byte, err error) {
 	return
 }
 
+//BSON
+func (key *PrivateKey) GetBSON() (interface{}, error) {
+	skey := &serializableKey{
+		Id:   key.Id,
+		Type: key.Type,
+		D:    key.D.String(),
+		X:    key.X.String(),
+		Y:    key.Y.String(),
+	}
+
+	return skey, nil
+}
+
 //JSON.parse
 func (key *PrivateKey) UnmarshalJSON(data []byte) (err error) {
 	skey := &serializableKey{}
@@ -150,6 +164,59 @@ func (key *PrivateKey) UnmarshalJSON(data []byte) (err error) {
 	key.D.SetBytes(bytes)
 
 	return
+}
+
+func (key *PrivateKey) SetBSON(raw bson.Raw) (err error) {
+	skey := &serializableKey{}
+	err = raw.Unmarshal(skey)
+	if err != nil {
+		return
+	}
+
+	key.Id = skey.Id
+	key.Type = skey.Type
+
+	curve, err := getCurve(skey.Type)
+	if err != nil {
+		return
+	}
+
+	key.PrivateKey = &ecdsa.PrivateKey{
+		PublicKey: ecdsa.PublicKey{
+			Curve: curve,
+			X:     big.NewInt(0),
+			Y:     big.NewInt(0),
+		},
+		D: big.NewInt(0),
+	}
+
+	var ok bool
+
+	_, ok = key.X.SetString(skey.X, 0)
+	if !ok {
+		return fmt.Errorf("invalid X component: %s", skey.X)
+	}
+
+	_, ok = key.Y.SetString(skey.Y, 0)
+	if !ok {
+		return fmt.Errorf("invalid Y component: %s", skey.Y)
+	}
+
+	_, ok = key.D.SetString(skey.D, 0)
+	if !ok {
+		return fmt.Errorf("invalid D component: %s", skey.D)
+	}
+
+	return
+}
+
+func (key *PrivateKey) Equals(key2 *PrivateKey) bool {
+	return key.D.Cmp(key2.D) == 0 &&
+		key.X.Cmp(key2.X) == 0 &&
+		key.Y.Cmp(key2.Y) == 0 &&
+		key.Id == key2.Id &&
+		key.Type == key2.Type &&
+		key.Curve.Params().BitSize == key2.Curve.Params().BitSize
 }
 
 func MD5Sum(s string) string {

@@ -1,7 +1,8 @@
 package perfect
 
 import (
-	_ "log"
+	"log"
+	"math/big"
 	"testing"
 )
 
@@ -194,5 +195,73 @@ func TestMD5Sum(t *testing.T) {
 	actual := MD5Sum(s)
 	if actual != expected {
 		t.Fatalf("actual md5 is '%v', expected '%v' for string: '%v'", actual, expected, s)
+	}
+}
+
+func BenchmarkPrivateKey_MarshalBigIntInt64(b *testing.B) {
+	var n *big.Int = big.NewInt(1000)
+	var i64 int64 = 0
+
+	for i := 0; i < b.N; i++ {
+		i64 = n.Int64()
+	}
+
+	log.Println(i64)
+}
+
+func TestMarshalBigInt(t *testing.T) {
+	var expected *big.Int = big.NewInt(1000)
+	i64 := expected.Int64()
+
+	actual := big.NewInt(i64)
+
+	if expected.Cmp(actual) != 0 {
+		t.Fatalf("big.Int numbers are not equal. expected: %v, actual %v", expected.String(), actual.String())
+	}
+}
+
+func TestPrivateKey_Equals(t *testing.T) {
+	expected, err := GeneratePrivateKey(EC_P521)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+
+	actual := expected
+
+	if !expected.Equals(actual) {
+		t.Fatalf("keys are not equal:\nexpected: %v\nactual: %v", expected, actual)
+	}
+}
+
+func BenchmarkPrivateKey_MarshalBigIntString(b *testing.B) {
+	var n *big.Int = big.NewInt(1000)
+	var sn string = ""
+
+	for i := 0; i < b.N; i++ {
+		sn = n.String()
+	}
+
+	log.Println(sn)
+}
+
+func TestPrivateKey_SerializeBSON(t *testing.T) {
+	expected, err := GeneratePrivateKey(EC_P521)
+	if err != nil {
+		t.Fatalf("err = %v")
+	}
+
+	serialized, err := expected.MarshalBSON()
+	if err != nil {
+		t.Fatalf("err = %v")
+	}
+
+	actual := &PrivateKey{}
+	err = actual.UnmarshalBSON(serialized)
+	if err != nil {
+		t.Fatalf("err = %v")
+	}
+
+	if !expected.Equals(actual) {
+		t.Fatalf("keys are not equal\nexpected: %#v\n- ecdsa key: %#v\nactual: %#v\n- ecdsa key: %#v", expected, *expected.PrivateKey, actual, *actual.PrivateKey)
 	}
 }
