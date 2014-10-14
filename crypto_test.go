@@ -1,6 +1,7 @@
 package perfect
 
 import (
+	"labix.org/v2/mgo/bson"
 	"log"
 	"math/big"
 	"testing"
@@ -250,13 +251,13 @@ func TestPrivateKey_SerializeBSON(t *testing.T) {
 		t.Fatalf("err = %v")
 	}
 
-	serialized, err := expected.MarshalBSON()
+	serialized, err := bson.Marshal(expected)
 	if err != nil {
 		t.Fatalf("err = %v")
 	}
 
 	actual := &PrivateKey{}
-	err = actual.UnmarshalBSON(serialized)
+	err = bson.Unmarshal(serialized, actual)
 	if err != nil {
 		t.Fatalf("err = %v")
 	}
